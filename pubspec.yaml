@@ -1,0 +1,41 @@
+name: tradetrove
+description: "A new Flutter project."
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  animated_text_kit: ^4.2.2
+  firebase_auth: ^4.18.0
+  firebase_core: ^2.27.2
+  firebase_database: ^10.4.11
+  flutter:
+    sdk: flutter
+  flutter_launcher_icons: ^0.13.1
+  flutter_native_splash: ^2.4.0
+  flutter_signin_button: ^2.0.0
+
+flutter_launch_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/images/logoTt.png"
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+  - assets/images/logoTt.png
+
+  fonts:
+  - family: Lato
+    fonts:
+      - asset: assets/fonts/Anton-Regular.ttf
+      - asset: assets/fonts/Lato-Bold.ttf
+        weight: 700

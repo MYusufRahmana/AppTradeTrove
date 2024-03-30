@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "218627885414",
+    "firebase_url": "https://tradeapp-1130a-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "tradeapp-1130a",
+    "storage_bucket": "tradeapp-1130a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:218627885414:android:4b9cf11d5f9c51481620a7",
+        "android_client_info": {
+          "package_name": "com.example.flutter_application_1"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDj7Ti-KLLqsxc8Z6foCcjy1cM96ZPRyps"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
