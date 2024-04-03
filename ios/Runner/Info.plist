@@ -45,5 +45,8 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSPhotoLibraryUsageDescription</key>
+<string>Alasan penggunaan akses ke galeri</string>
+
 </dict>
 </plist>

@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'login_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
-  const RegistrationScreen({super.key});
+  const RegistrationScreen({Key? key}) : super(key: key);
 
   @override
   State<RegistrationScreen> createState() => _RegistrationScreenState();
@@ -20,33 +20,52 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       appBar: AppBar(
         title: const Text('Registrasi'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Password'),
-            ),
-            TextField(
-              controller: _confirmPasswordController,
-              obscureText: true,
-              decoration:
-                  const InputDecoration(labelText: 'Konfirmasi Password'),
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              child: const Text('Daftar'),
-              onPressed: () {
-                _registerAccount();
-              },
-            )
-          ],
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextFormField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10.0),
+              TextFormField(
+                controller: _passwordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: 'Password',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10.0),
+              TextFormField(
+                controller: _confirmPasswordController,
+                obscureText: true,
+                decoration: InputDecoration(
+                  labelText: 'Konfirmasi Password',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30.0),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10.0),
+              ElevatedButton(
+                child: const Text('Daftar'),
+                onPressed: () {
+                  _registerAccount();
+                },
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -61,6 +80,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         await FirebaseAuth.instance.createUserWithEmailAndPassword(
             email: _emailController.text, password: _passwordController.text);
         if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+            content: Text('Berhasil Mendaftar'),
+          ));
           Navigator.of(context).pushReplacement(
               MaterialPageRoute(builder: (context) => const LoginScreen()));
         }

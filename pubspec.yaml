@@ -16,6 +16,7 @@ dependencies:
   flutter_launcher_icons: ^0.13.1
   flutter_native_splash: ^2.4.0
   flutter_signin_button: ^2.0.0
+  image_picker: ^1.0.7
 
 flutter_launch_icons:
   android: "launcher_icon"
