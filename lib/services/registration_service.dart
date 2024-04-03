@@ -4,17 +4,15 @@ import 'package:flutter/material.dart';
 
 class RegistrationService {
   final DatabaseReference _database =
-      FirebaseDatabase.instance.ref().child('users');
+      FirebaseDatabase.instance.reference().child('users');
 
   Future<void> registerUser({
+    required String uid, // Tambahkan parameter UID di sini
     required String fullName,
     required String address,
     required String phoneNumber,
   }) async {
     try {
-      // Dapatkan UID pengguna yang saat ini terautentikasi
-      String uid = FirebaseAuth.instance.currentUser!.uid;
-
       // Simpan informasi tambahan pengguna ke dalam Realtime Database
       await _database.child(uid).set({
         'fullName': fullName,

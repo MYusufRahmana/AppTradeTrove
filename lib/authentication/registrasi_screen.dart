@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tradetrove/services/registration_service.dart';
 import 'login_screen.dart';
 
 class RegistrationScreen extends StatefulWidget {
@@ -10,6 +11,9 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
+  final _nameController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -26,34 +30,64 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              TextFormField(
-                controller: _emailController,
+              TextField(
+                controller: _nameController,
                 decoration: InputDecoration(
-                  labelText: 'Email',
+                  labelText: 'Nama lengkap',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
+                    borderRadius: BorderRadius.circular(20.0),
                   ),
                 ),
               ),
               SizedBox(height: 10.0),
-              TextFormField(
+              TextField(
+                controller: _phoneController,
+                decoration: InputDecoration(
+                  labelText: 'No Telepon',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10.0),
+              TextField(
+                controller: _addressController,
+                decoration: InputDecoration(
+                  labelText: 'Alamat',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10.0),
+              TextField(
+                controller: _emailController,
+                decoration: InputDecoration(
+                  labelText: 'Email',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(20.0),
+                  ),
+                ),
+              ),
+              SizedBox(height: 10.0),
+              TextField(
                 controller: _passwordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Password',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
+                    borderRadius: BorderRadius.circular(20.0),
                   ),
                 ),
               ),
               SizedBox(height: 10.0),
-              TextFormField(
+              TextField(
                 controller: _confirmPasswordController,
                 obscureText: true,
                 decoration: InputDecoration(
                   labelText: 'Konfirmasi Password',
                   border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(30.0),
+                    borderRadius: BorderRadius.circular(20.0),
                   ),
                 ),
               ),
@@ -63,7 +97,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                 onPressed: () {
                   _registerAccount();
                 },
-              )
+              ),
             ],
           ),
         ),
@@ -71,27 +105,59 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
+  
   void _registerAccount() async {
-    if (_passwordController.text != _confirmPasswordController.text) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-          content: Text('Password dan Konfirmasi Password Tidak Sama')));
-    } else {
-      try {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-            email: _emailController.text, password: _passwordController.text);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-            content: Text('Berhasil Mendaftar'),
-          ));
-          Navigator.of(context).pushReplacement(
-              MaterialPageRoute(builder: (context) => const LoginScreen()));
-        }
-      } on FirebaseAuthException catch (e) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Gagal Mendaftar : ${e.message}')));
-        }
+  if (_nameController.text.isEmpty ||
+      _addressController.text.isEmpty ||
+      _phoneController.text.isEmpty ||
+      _emailController.text.isEmpty ||
+      _passwordController.text.isEmpty ||
+      _confirmPasswordController.text.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Mohon lengkapi semua kolom input sebelum mendaftar')));
+    return;
+  }
+
+  if (_passwordController.text != _confirmPasswordController.text) {
+    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        content: Text('Password dan Konfirmasi Password Tidak Sama')));
+    return;
+  }
+
+  try {
+    // Buat pengguna dengan email dan password menggunakan Firebase Authentication
+    await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text, password: _passwordController.text);
+
+    // Dapatkan pengguna yang saat ini terautentikasi
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      String uid = user.uid;
+
+      // Panggil service registrasi untuk menyimpan informasi pengguna ke Realtime Database
+      await RegistrationService().registerUser(
+        uid: uid,
+        fullName: _nameController.text,
+        address: _addressController.text,
+        phoneNumber: _phoneController.text,
+      );
+
+      if (mounted) {
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const LoginScreen()));
       }
+    } else {
+      throw FirebaseAuthException(
+        code: 'user-not-found',
+        message: 'Tidak ada pengguna yang terautentikasi.',
+      );
+    }
+  } on FirebaseAuthException catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Gagal Mendaftar : ${e.message}')));
     }
   }
+}
+
 }
