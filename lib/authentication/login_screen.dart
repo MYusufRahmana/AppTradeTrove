@@ -18,37 +18,65 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text(''),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
-            ),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(labelText: 'Password'),
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              child: const Text('Login'),
-              onPressed: () {
-                _login();
-              },
-            ),
-            const SizedBox(height: 8.0),
-            TextButton(
-              child: const Text('Belum punya akun? Daftar di sini'),
-              onPressed: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                    builder: (context) => const RegistrationScreen()));
-              },
-            )
-          ],
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset(
+                'assets/images/logoTt.png', // Ganti dengan path gambar logo Anda
+                width: 200, // Sesuaikan lebar logo
+                height: 200, // Sesuaikan tinggi logo
+              ),
+              const SizedBox(height: 16.0),
+              Container( // Bar input email
+                width: MediaQuery.of(context).size.width * 0.8, // Lebar 80% dari lebar layar
+                child: TextField(
+                  controller: _emailController,
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                     labelStyle: TextStyle(color: Colors.deepPurple[500]), // Warna teks label email
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20.0)), // Membuat border oval
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              Container( // Bar input password
+                width: MediaQuery.of(context).size.width * 0.8, // Lebar 80% dari lebar layar
+                child: TextField(
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    labelStyle: TextStyle(color: Colors.deepPurple[500]), // Warna teks label password
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(20.0)), // Membuat border oval
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16.0),
+              ElevatedButton(
+                child: const Text('Login'),
+                onPressed: () {
+                  _login();
+                },
+              ),
+              const SizedBox(height: 8.0),
+              TextButton(
+                child: const Text('Belum punya akun? Daftar di sini'),
+                onPressed: () {
+                  Navigator.of(context).push(MaterialPageRoute(
+                      builder: (context) => const RegistrationScreen()));
+                },
+              )
+            ],
+          ),
         ),
       ),
     );
