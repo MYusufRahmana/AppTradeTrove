@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 
@@ -24,9 +25,10 @@ class RegistrationService {
     }
   }
 }
-class getProfile{
+
+class getProfile {
   final DatabaseReference _databaseReference =
-      FirebaseDatabase.instance.reference().child("Users");
+      FirebaseDatabase.instance.reference().child("users");
 
   Future<Map<String, String>?> getUserProfile() async {
     try {
@@ -64,6 +66,16 @@ class getProfile{
   }
 }
 
+class SignOutService {
+  Future<void> signOut() async {
+    try {
+      await FirebaseAuth.instance.signOut();
+      print(getUser());
+    } catch (e) {
+      print('Error signing out: $e');
+    }
+  }
+}
 
 Future<String?> getUser() async {
   User? user = FirebaseAuth.instance.currentUser;
