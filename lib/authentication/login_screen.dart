@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:tradetrove/screens/home_screen.dart';
+import 'package:tradetrove/services/registration_service.dart';
 import 'registrasi_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,6 +14,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+    final RegistrationService getUser=RegistrationService();
 
   @override
   Widget build(BuildContext context) {

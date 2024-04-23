@@ -24,3 +24,52 @@ class RegistrationService {
     }
   }
 }
+class getProfile{
+  final DatabaseReference _databaseReference =
+      FirebaseDatabase.instance.reference().child("Users");
+
+  Future<Map<String, String>?> getUserProfile() async {
+    try {
+      String? userId = await getUser();
+      if (userId != null) {
+        DataSnapshot dataSnapshot =
+            await _databaseReference.child(userId).get();
+        Map<dynamic, dynamic>? userData =
+            dataSnapshot.value as Map<dynamic, dynamic>?;
+        if (userData != null) {
+          String? fullName = userData['fullName'] as String?;
+          String? address = userData['address'] as String?;
+          String? phoneNumber = userData['phoneNumber'] as String?;
+
+          Map<String, String> userProfile = {
+            'fullName': fullName ?? '',
+            'address': address ?? '',
+            'phoneNumber': phoneNumber ?? '',
+          };
+
+          return userProfile;
+        } else {
+          // Handle null user data
+          return null;
+        }
+      } else {
+        // Handle null userId
+        return null;
+      }
+    } catch (e) {
+      print(e);
+      // Handle errors
+      return null;
+    }
+  }
+}
+
+
+Future<String?> getUser() async {
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    return user.uid;
+  }else{
+  return('error');
+  }
+}
