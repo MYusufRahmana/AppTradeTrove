@@ -1,12 +1,20 @@
+import 'dart:html';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:tradetrove/authentication/login_screen.dart';
-import 'package:tradetrove/services/registration_service.dart';
-import 'package:flutter/material.dart';
 import 'package:tradetrove/services/registration_service.dart';
 
 class ProfileScreen extends StatelessWidget {
-  final getProfile GetProfile = getProfile(); // Instance of GetProfile class
-  final SignOutService signOutService = SignOutService(); // Instance of SignOutService class
+  final SignOutService signOutService = SignOutService();
+  final currentUser = FirebaseAuth.instance.currentUser!;
+  final usersCollection = FirebaseFirestore.instance.collection('users');
+  
+  Future<User?> getCurrentUser() async {
+    return FirebaseAuth.instance.currentUser;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,31 +47,28 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            FutureBuilder<Map<String, String>?>(
-              future: GetProfile.getUserProfile(),
-              builder: (BuildContext context, AsyncSnapshot<Map<String, String>?> snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(child: CircularProgressIndicator());
-                } else {
-                  if (snapshot.hasError) {
-                    return Text('Error: ${snapshot.error}');
-                  } else if (snapshot.hasData) {
-                    final Map<String, String>? userProfile = snapshot.data;
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _buildProfileItem('Full Name', userProfile?['fullName'] ?? ''),
-                        _buildDivider(),
-                        _buildProfileItem('Address', userProfile?['address'] ?? ''),
-                        _buildDivider(),
-                        _buildProfileItem('Phone Number', userProfile?['phoneNumber'] ?? ''),
-                        _buildDivider(),
-                      ],
-                    );
-                  } else {
-                    return Text('No data available');
-                  }
+            StreamBuilder<DocumentSnapshot>(
+              stream: FirebaseFirestore.instance
+                  .collection('users')
+                  .doc(currentUser.uid)
+                  .snapshots(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot != null) {
+                  final currentUserData =
+                      snapshot.data!.data() as Map<String, dynamic>;
+                  return Column(
+                    children: [
+                      Text(currentUserData['fullName'] ?? ""),
+                      Text(currentUserData['phoneNumber']?? ""),
+                      Text(currentUserData['address']?? ""),
+                      Text(currentUserData['imageUrl']?? ""),
+                      
+                    ],
+                  );
                 }
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
               },
             ),
             SizedBox(height: 15),
@@ -71,11 +76,13 @@ class ProfileScreen extends StatelessWidget {
               onPressed: () {
                 // Tambahkan logika untuk tombol edit di sini
               },
-              child: Text('Edit',
-                style: TextStyle(color: Colors.white),),
+              child: Text(
+                'Edit',
+                style: TextStyle(color: Colors.white),
+              ),
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 40),
-                 backgroundColor: Colors.purple.shade400, 
+                backgroundColor: Colors.purple.shade400,
               ),
             ),
             SizedBox(height: 5),
@@ -87,11 +94,13 @@ class ProfileScreen extends StatelessWidget {
                   builder: (context) => const LoginScreen(),
                 ));
               },
-              child: Text('Logout',
-                style: TextStyle(color: Colors.white),),
+              child: Text(
+                'Logout',
+                style: TextStyle(color: Colors.white),
+              ),
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 40),
-                 backgroundColor:Colors.purple.shade400, 
+                backgroundColor: Colors.purple.shade400,
               ),
             ),
           ],

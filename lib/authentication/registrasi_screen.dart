@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:tradetrove/services/registration_service.dart';
 import 'login_screen.dart';
 
@@ -17,6 +18,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
+  XFile? _imageFile;
+
+  Future<void> _pickImage() async {
+    final PickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (PickedFile != null) {
+      setState(() {
+        _imageFile = XFile(PickedFile.path);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -91,11 +103,22 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   ),
                 ),
               ),
+              Expanded(
+                child: _imageFile != null
+                    ? Image.network(_imageFile!.path,
+                        fit: BoxFit.cover) // Gunakan Image.network untuk web
+                        : Container()),
+              TextButton(
+                onPressed: _pickImage,
+                child: const Text('Pick Image'),
+              ),
               SizedBox(height: 10.0),
               ElevatedButton(
                 child: const Text('Daftar'),
-                onPressed: () {
+                onPressed:  () async {
+                 
                   _registerAccount();
+
                 },
               ),
             ],
@@ -105,59 +128,60 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     );
   }
 
-  
   void _registerAccount() async {
-  if (_nameController.text.isEmpty ||
-      _addressController.text.isEmpty ||
-      _phoneController.text.isEmpty ||
-      _emailController.text.isEmpty ||
-      _passwordController.text.isEmpty ||
-      _confirmPasswordController.text.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Mohon lengkapi semua kolom input sebelum mendaftar')));
-    return;
-  }
+    if (_nameController.text.isEmpty ||
+        _addressController.text.isEmpty ||
+        _phoneController.text.isEmpty ||
+        _emailController.text.isEmpty ||
+        _passwordController.text.isEmpty ||
+        _confirmPasswordController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Mohon lengkapi semua kolom input sebelum mendaftar')));
+      return;
 
-  if (_passwordController.text != _confirmPasswordController.text) {
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-        content: Text('Password dan Konfirmasi Password Tidak Sama')));
-    return;
-  }
+    }
 
-  try {
-    // Buat pengguna dengan email dan password menggunakan Firebase Authentication
-    await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: _emailController.text, password: _passwordController.text);
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+          content: Text('Password dan Konfirmasi Password Tidak Sama')));
+      return;
+    }
 
-    // Dapatkan pengguna yang saat ini terautentikasi
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      String uid = user.uid;
+    try {
+      // Buat pengguna dengan email dan password menggunakan Firebase Authentication
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _emailController.text, password: _passwordController.text);
 
-      // Panggil service registrasi untuk menyimpan informasi pengguna ke Realtime Database
-      await RegistrationService().registerUser(
-        uid: uid,
-        fullName: _nameController.text,
-        address: _addressController.text,
-        phoneNumber: _phoneController.text,
-      );
+      // Dapatkan pengguna yang saat ini terautentikasi
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        String uid = user.uid;
 
-      if (mounted) {
-        Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const LoginScreen()));
+        // Panggil service registrasi untuk menyimpan informasi pengguna ke Realtime Database
+        await RegistrationService().registerUser(
+          uid: uid,
+          fullName: _nameController.text,
+          address: _addressController.text,
+          phoneNumber: _phoneController.text,
+          imageFile: _imageFile
+          
+        );
+
+        if (mounted) {
+          Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const LoginScreen()));
+        }
+      } else {
+        throw FirebaseAuthException(
+          code: 'user-not-found',
+          message: 'Tidak ada pengguna yang terautentikasi.',
+        );
       }
-    } else {
-      throw FirebaseAuthException(
-        code: 'user-not-found',
-        message: 'Tidak ada pengguna yang terautentikasi.',
-      );
-    }
-  } on FirebaseAuthException catch (e) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Gagal Mendaftar : ${e.message}')));
+    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Gagal Mendaftar : ${e.message}')));
+      }
     }
   }
-}
-
 }

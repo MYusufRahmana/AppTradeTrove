@@ -1,8 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:tradetrove/authentication/login_screen.dart';
+import 'package:tradetrove/authentication/registrasi_screen.dart';
 import 'package:tradetrove/screens/home_screen.dart';
+import 'package:tradetrove/screens/profil_screen.dart';
 import 'package:tradetrove/screens/splash_screen.dart';
 import 'firebase_options.dart';
 
@@ -35,7 +36,7 @@ class MyApp extends StatelessWidget {
             theme: ThemeData(
                 primaryColor: Colors.cyan.shade900, 
                 fontFamily: 'Lato'),
-            home: LoginScreen(),
+            home: ProfileScreen(),
           );
         }
       },
