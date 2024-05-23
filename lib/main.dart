@@ -36,7 +36,7 @@ class MyApp extends StatelessWidget {
             theme: ThemeData(
                 primaryColor: Colors.cyan.shade900, 
                 fontFamily: 'Lato'),
-            home: ProfileScreen(),
+            home:LoginScreen(),
           );
         }
       },

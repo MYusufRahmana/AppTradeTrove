@@ -11,7 +11,7 @@ class ProfileScreen extends StatelessWidget {
   final SignOutService signOutService = SignOutService();
   final currentUser = FirebaseAuth.instance.currentUser!;
   final usersCollection = FirebaseFirestore.instance.collection('users');
-  
+
   Future<User?> getCurrentUser() async {
     return FirebaseAuth.instance.currentUser;
   }
@@ -53,16 +53,21 @@ class ProfileScreen extends StatelessWidget {
                   .doc(currentUser.uid)
                   .snapshots(),
               builder: (context, snapshot) {
-                if (snapshot.hasData && snapshot != null) {
+                if (snapshot.hasData) {
                   final currentUserData =
                       snapshot.data!.data() as Map<String, dynamic>;
                   return Column(
                     children: [
                       Text(currentUserData['fullName'] ?? ""),
-                      Text(currentUserData['phoneNumber']?? ""),
-                      Text(currentUserData['address']?? ""),
-                      Text(currentUserData['imageUrl']?? ""),
-                      
+                      Text(currentUserData['phoneNumber'] ?? ""),
+                      Text(currentUserData['address'] ?? ""),
+                      Image.network(
+                        currentUserData['imageUrl'],
+                        fit: BoxFit.cover,
+                        alignment: Alignment.center,
+                        width: double.infinity,
+                        height: 150,
+                      )
                     ],
                   );
                 }
