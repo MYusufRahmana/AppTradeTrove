@@ -1,9 +1,6 @@
-import 'dart:html';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:tradetrove/authentication/login_screen.dart';
 import 'package:tradetrove/services/registration_service.dart';
 
@@ -45,29 +42,45 @@ class ProfileScreen extends StatelessWidget {
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             StreamBuilder<DocumentSnapshot>(
-              stream: FirebaseFirestore.instance
-                  .collection('users')
-                  .doc(currentUser.uid)
-                  .snapshots(),
+              stream: usersCollection.doc(currentUser.uid).snapshots(),
               builder: (context, snapshot) {
-                if (snapshot.hasData) {
+                if (snapshot.hasData && snapshot.data != null) {
                   final currentUserData =
                       snapshot.data!.data() as Map<String, dynamic>;
                   return Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(currentUserData['fullName'] ?? ""),
-                      Text(currentUserData['phoneNumber'] ?? ""),
-                      Text(currentUserData['address'] ?? ""),
-                      Image.network(
-                        currentUserData['imageUrl'],
-                        fit: BoxFit.cover,
-                        alignment: Alignment.center,
-                        width: double.infinity,
-                        height: 150,
-                      )
+                      CircleAvatar(
+                        radius: 50,
+                        backgroundImage: currentUserData['imageUrl'] != null
+                            ? NetworkImage(currentUserData['imageUrl'])
+                            : AssetImage('assets/images/default_avatar.png') as ImageProvider,
+                      ),
+                      SizedBox(height: 10),
+                      Text(
+                        currentUserData['fullName'] ?? "",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        currentUserData['phoneNumber'] ?? "",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
+                      ),
+                      Text(
+                        currentUserData['address'] ?? "",
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Colors.black54,
+                        ),
+                      ),
                     ],
                   );
                 }
@@ -76,7 +89,7 @@ class ProfileScreen extends StatelessWidget {
                 );
               },
             ),
-            SizedBox(height: 15),
+            Spacer(),
             ElevatedButton(
               onPressed: () {
                 // Tambahkan logika untuk tombol edit di sini
@@ -91,60 +104,27 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 5),
-            ElevatedButton(
-              onPressed: () {
-                // Tambahkan logika untuk tombol logout di sini
-                signOutService.signOut();
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => const LoginScreen(),
-                ));
-              },
-              child: Text(
-                'Logout',
-                style: TextStyle(color: Colors.white),
-              ),
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(double.infinity, 40),
-                backgroundColor: Colors.purple.shade400,
+            Padding(
+              padding: const EdgeInsets.only(bottom: 50),
+              child: ElevatedButton(
+                onPressed: () {
+                  signOutService.signOut();
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  ));
+                },
+                child: Text(
+                  'Logout',
+                  style: TextStyle(color: Colors.white),
+                ),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(double.infinity, 40),
+                  backgroundColor: Colors.purple.shade400,
+                ),
               ),
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildDivider() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 8),
-      height: 1,
-      color: Colors.grey[300],
-    );
-  }
-
-  Widget _buildProfileItem(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black54,
-            ),
-          ),
-          SizedBox(height: 4),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.black,
-            ),
-          ),
-        ],
       ),
     );
   }

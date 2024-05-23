@@ -1,8 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io' as io;
 import 'package:path/path.dart' as path;
@@ -42,7 +39,7 @@ class RegistrationService {
   static Future<String?> uploadImage(XFile imageFile) async {
     try {
       String fileName = path.basename(imageFile.path);
-      Reference ref = _storage.ref().child('image/$fileName');
+      Reference ref = _storage.ref().child('image/fotoProfile/$fileName');
       UploadTask uploadTask;
       if (kIsWeb) {
         uploadTask = ref.putData(await imageFile.readAsBytes());

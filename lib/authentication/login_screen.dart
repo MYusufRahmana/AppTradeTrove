@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:tradetrove/navbar.dart';
 import 'package:tradetrove/screens/home_screen.dart';
 import 'package:tradetrove/services/registration_service.dart';
 import 'registrasi_screen.dart';
@@ -91,7 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (mounted) {
         Navigator.of(context).pushReplacement(MaterialPageRoute(
-            builder: (context) => const HomeScreen()));
+            builder: (context) => Navbar()));
       }
     } on FirebaseAuthException catch (e) {
       if (mounted) {
