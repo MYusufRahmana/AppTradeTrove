@@ -1,16 +1,16 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tradetrove/services/product.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
-class AddProductScreen extends StatefulWidget {
-  const AddProductScreen({Key? key}) : super(key: key);
+class UploadProductScreen extends StatefulWidget {
+  const UploadProductScreen({Key? key}) : super(key: key);
 
   @override
-  _AddProductScreenState createState() => _AddProductScreenState();
+  _UploadProductScreenState createState() => _UploadProductScreenState();
 }
 
-class _AddProductScreenState extends State<AddProductScreen> {
+class _UploadProductScreenState extends State<UploadProductScreen> {
   final _merkController = TextEditingController();
   final _tahunController = TextEditingController();
   final _jarakTempuhController = TextEditingController();
@@ -23,26 +23,111 @@ class _AddProductScreenState extends State<AddProductScreen> {
   XFile? _imageFile;
 
   Future<void> _pickImage() async {
-    final PickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (PickedFile != null) {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
       setState(() {
-        _imageFile = XFile(PickedFile.path);
+        _imageFile = pickedFile;
       });
     }
   }
 
-  void _addProduct() async {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Upload Product'),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(16.0),
+        children: [
+          TextField(
+            controller: _merkController,
+            decoration: InputDecoration(labelText: 'Merk'),
+          ),
+          SizedBox(height: 10.0),
+          TextField(
+            controller: _tahunController,
+            keyboardType: TextInputType.number,
+            decoration: InputDecoration(labelText: 'Tahun Mobil'),
+          ),
+          SizedBox(height: 10.0),
+          TextField(
+            controller: _jarakTempuhController,
+            decoration: InputDecoration(labelText: 'Jarak Tempuh'),
+          ),
+          SizedBox(height: 10.0),
+          TextField(
+            controller: _bahanBakarController,
+            decoration: InputDecoration(labelText: 'Bahan Bakar'),
+          ),
+          SizedBox(height: 10.0),
+          TextField(
+            controller: _warnaController,
+            decoration: InputDecoration(labelText: 'Warna'),
+          ),
+          SizedBox(height: 10.0),
+          TextField(
+            controller: _descriptionController,
+            decoration: InputDecoration(labelText: 'Deskripsi'),
+          ),
+          SizedBox(height: 10.0),
+          TextField(
+            controller: _kapasitasMesinController,
+            decoration: InputDecoration(labelText: 'Kapasitas Mesin'),
+          ),
+          SizedBox(height: 10.0),
+          TextField(
+            controller: _tipePenjualController,
+            decoration: InputDecoration(labelText: 'Tipe Penjual'),
+          ),
+          SizedBox(height: 10.0),
+          TextField(
+            controller: _hargaController,
+            decoration: InputDecoration(labelText: 'Harga'),
+          ),
+          SizedBox(height: 20.0),
+          ElevatedButton(
+            onPressed: _pickImage,
+            child: Text(_imageFile == null ? 'Pick Image' : 'Image Selected'),
+          ),
+          SizedBox(height: 5.0),
+          _imageFile != null ? Image.network((_imageFile!.path)) : Container(),
+          ElevatedButton(
+            onPressed: () {
+              _uploadProduct();
+            },
+            child: Text('Upload Product'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _uploadProduct() async {
+    if (_merkController.text.isEmpty ||
+        _tahunController.text.isEmpty ||
+        _jarakTempuhController.text.isEmpty ||
+        _bahanBakarController.text.isEmpty ||
+        _warnaController.text.isEmpty ||
+        _descriptionController.text.isEmpty ||
+        _kapasitasMesinController.text.isEmpty ||
+        _tipePenjualController.text.isEmpty ||
+        _hargaController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please fill in all fields')),
+      );
+      return;
+    }
+    if (_imageFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Please select an image')),
+      );
+      return;
+    }
+
     try {
-      User? user = FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('User tidak ditemukan')),
-        );
-        return;
-      }
-
-      String uid = user.uid;
-
+      final uid = 'uid';
       await ProductService().createProduct(
         uid: uid,
         merk: _merkController.text,
@@ -56,134 +141,32 @@ class _AddProductScreenState extends State<AddProductScreen> {
         harga: _hargaController.text,
         imageFile: _imageFile,
       );
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Produk berhasil ditambahkan')),
+        SnackBar(content: Text('Product uploaded successfully')),
       );
-      Navigator.of(context).pop();
+
+      // Clear all text fields and image selection after upload
+      _clearFields();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Gagal menambahkan produk: $e')),
+        SnackBar(content: Text('Failed to upload product')),
       );
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tambah Produk'),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _merkController,
-              decoration: InputDecoration(
-                labelText: 'Merk',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            TextField(
-              controller: _tahunController,
-              decoration: InputDecoration(
-                labelText: 'Tahun',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            TextField(
-              controller: _jarakTempuhController,
-              decoration: InputDecoration(
-                labelText: 'Jarak Tempuh',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            TextField(
-              controller: _bahanBakarController,
-              decoration: InputDecoration(
-                labelText: 'Bahan Bakar',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            TextField(
-              controller: _warnaController,
-              decoration: InputDecoration(
-                labelText: 'Warna',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            TextField(
-              controller: _descriptionController,
-              decoration: InputDecoration(
-                labelText: 'Deskripsi',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            TextField(
-              controller: _kapasitasMesinController,
-              decoration: InputDecoration(
-                labelText: 'Kapasitas Mesin',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            TextField(
-              controller: _tipePenjualController,
-              decoration: InputDecoration(
-                labelText: 'Tipe Penjual',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10.0),
-            TextField(
-              controller: _hargaController,
-              decoration: InputDecoration(
-                labelText: 'Harga',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-              ),
-            ),
-            const SizedBox(height: 5.0),
-            _imageFile != null
-                ? Image.network(_imageFile!.path, fit: BoxFit.cover)
-                : Container(),
-            TextButton(
-              onPressed: _pickImage,
-              child: const Text('Pick Image'),
-            ),
-             const SizedBox(height: 20.0),
-            Center(
-              child: ElevatedButton(
-                onPressed: _addProduct,
-                child: const Text('Tambah Produk'),
-              )
-            ),
-          ],
-        ),
-      ),
-    );
+  void _clearFields() {
+    _merkController.clear();
+    _tahunController.clear();
+    _jarakTempuhController.clear();
+    _bahanBakarController.clear();
+    _warnaController.clear();
+    _descriptionController.clear();
+    _kapasitasMesinController.clear();
+    _tipePenjualController.clear();
+    _hargaController.clear();
+    setState(() {
+      _imageFile = null;
+    });
   }
 }

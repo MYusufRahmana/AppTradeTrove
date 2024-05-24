@@ -1,10 +1,12 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:tradetrove/services/image.dart';
 
 class ProductService {
-  static final FirebaseFirestore _database = FirebaseFirestore.instance;
-  static final CollectionReference _productCollection = _database.collection('product');
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   Future<void> createProduct({
     required String uid,
@@ -20,11 +22,15 @@ class ProductService {
     XFile? imageFile,
   }) async {
     try {
-      String? urlImage;
+      String imageUrl = '';
       if (imageFile != null) {
-        urlImage = await ImageService.uploadImage(imageFile, 'product_images');
+        final storageRef = _storage.ref().child('products/${imageFile.name}');
+        await storageRef.putFile(File(imageFile.path));
+        imageUrl = await storageRef.getDownloadURL();
       }
-      Map<String, dynamic> newProduct = {
+
+      await _firestore.collection('products').add({
+        'uid': uid,
         'merk': merk,
         'tahun': tahun,
         'jarakTempuh': jarakTempuh,
@@ -34,11 +40,11 @@ class ProductService {
         'kapasitasMesin': kapasitasMesin,
         'tipePenjual': tipePenjual,
         'harga': harga,
-        'urlImage': urlImage,
-      };
-      await _productCollection.doc(uid).set(newProduct);
+        'imageUrl': imageUrl,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
     } catch (e) {
-      throw Exception('Gagal menambahkan produk: $e');
+      throw Exception('Error creating product: $e');
     }
   }
 }
