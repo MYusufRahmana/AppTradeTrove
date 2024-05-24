@@ -38,68 +38,76 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
       appBar: AppBar(
         title: Text('Upload Product'),
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          TextField(
-            controller: _merkController,
-            decoration: InputDecoration(labelText: 'Merk'),
+      body: SingleChildScrollView(
+         padding: const EdgeInsets.all(16.0),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                controller: _merkController,
+                decoration: InputDecoration(labelText: 'Merk'),
+              ),
+              SizedBox(height: 10.0),
+              TextField(
+                controller: _tahunController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(labelText: 'Tahun Mobil'),
+              ),
+              SizedBox(height: 10.0),
+              TextField(
+                controller: _jarakTempuhController,
+                decoration: InputDecoration(labelText: 'Jarak Tempuh'),
+              ),
+              SizedBox(height: 10.0),
+              TextField(
+                controller: _bahanBakarController,
+                decoration: InputDecoration(labelText: 'Bahan Bakar'),
+              ),
+              SizedBox(height: 10.0),
+              TextField(
+                controller: _warnaController,
+                decoration: InputDecoration(labelText: 'Warna'),
+              ),
+              SizedBox(height: 10.0),
+              TextField(
+                controller: _descriptionController,
+                decoration: InputDecoration(labelText: 'Deskripsi'),
+              ),
+              SizedBox(height: 10.0),
+              TextField(
+                controller: _kapasitasMesinController,
+                decoration: InputDecoration(labelText: 'Kapasitas Mesin'),
+              ),
+              SizedBox(height: 10.0),
+              TextField(
+                controller: _tipePenjualController,
+                decoration: InputDecoration(labelText: 'Tipe Penjual'),
+              ),
+              SizedBox(height: 10.0),
+              TextField(
+                controller: _hargaController,
+                decoration: InputDecoration(labelText: 'Harga'),
+              ),
+              SizedBox(height: 20.0),
+              ElevatedButton(
+                onPressed: _pickImage,
+                child:
+                    Text(_imageFile == null ? 'Pick Image' : 'Image Selected'),
+              ),
+              SizedBox(height: 5.0),
+              _imageFile != null ? Image.network((_imageFile!.path)) : Container(),
+              ElevatedButton(
+                onPressed: () {
+                  _uploadProduct();
+                },
+                child: Text('Upload Product'),
+              ),
+              SizedBox(height: 20.0),
+            ],
           ),
-          SizedBox(height: 10.0),
-          TextField(
-            controller: _tahunController,
-            keyboardType: TextInputType.number,
-            decoration: InputDecoration(labelText: 'Tahun Mobil'),
-          ),
-          SizedBox(height: 10.0),
-          TextField(
-            controller: _jarakTempuhController,
-            decoration: InputDecoration(labelText: 'Jarak Tempuh'),
-          ),
-          SizedBox(height: 10.0),
-          TextField(
-            controller: _bahanBakarController,
-            decoration: InputDecoration(labelText: 'Bahan Bakar'),
-          ),
-          SizedBox(height: 10.0),
-          TextField(
-            controller: _warnaController,
-            decoration: InputDecoration(labelText: 'Warna'),
-          ),
-          SizedBox(height: 10.0),
-          TextField(
-            controller: _descriptionController,
-            decoration: InputDecoration(labelText: 'Deskripsi'),
-          ),
-          SizedBox(height: 10.0),
-          TextField(
-            controller: _kapasitasMesinController,
-            decoration: InputDecoration(labelText: 'Kapasitas Mesin'),
-          ),
-          SizedBox(height: 10.0),
-          TextField(
-            controller: _tipePenjualController,
-            decoration: InputDecoration(labelText: 'Tipe Penjual'),
-          ),
-          SizedBox(height: 10.0),
-          TextField(
-            controller: _hargaController,
-            decoration: InputDecoration(labelText: 'Harga'),
-          ),
-          SizedBox(height: 20.0),
-          ElevatedButton(
-            onPressed: _pickImage,
-            child: Text(_imageFile == null ? 'Pick Image' : 'Image Selected'),
-          ),
-          SizedBox(height: 5.0),
-          _imageFile != null ? Image.network((_imageFile!.path)) : Container(),
-          ElevatedButton(
-            onPressed: () {
-              _uploadProduct();
-            },
-            child: Text('Upload Product'),
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -146,8 +154,6 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
         SnackBar(content: Text('Product uploaded successfully')),
       );
 
-      // Clear all text fields and image selection after upload
-      _clearFields();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Failed to upload product')),
@@ -155,18 +161,4 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
     }
   }
 
-  void _clearFields() {
-    _merkController.clear();
-    _tahunController.clear();
-    _jarakTempuhController.clear();
-    _bahanBakarController.clear();
-    _warnaController.clear();
-    _descriptionController.clear();
-    _kapasitasMesinController.clear();
-    _tipePenjualController.clear();
-    _hargaController.clear();
-    setState(() {
-      _imageFile = null;
-    });
-  }
 }
