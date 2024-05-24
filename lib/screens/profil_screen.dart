@@ -17,7 +17,7 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.purple.shade500,
+        backgroundColor: Color.fromRGBO(191, 149, 255, 1),
         elevation: 0,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -100,7 +100,7 @@ class ProfileScreen extends StatelessWidget {
               ),
               style: ElevatedButton.styleFrom(
                 minimumSize: Size(double.infinity, 40),
-                backgroundColor: Colors.purple.shade400,
+                backgroundColor:  Color.fromRGBO(191, 149, 255, 1),
               ),
             ),
             SizedBox(height: 5),
@@ -119,7 +119,7 @@ class ProfileScreen extends StatelessWidget {
                 ),
                 style: ElevatedButton.styleFrom(
                   minimumSize: Size(double.infinity, 40),
-                  backgroundColor: Colors.purple.shade400,
+                  backgroundColor:  Color.fromRGBO(191, 149, 255, 1),
                 ),
               ),
             ),

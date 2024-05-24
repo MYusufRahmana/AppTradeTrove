@@ -17,7 +17,7 @@ class NavbarState extends State<Navbar> {
   static List<Widget> _widgetOptions = <Widget>[
     HomeScreen(),
     SearchScreen(),
-    sellScreen(),
+    AddProductScreen(),
     ProfileScreen(),
   ];
 
