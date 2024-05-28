@@ -1,49 +1,105 @@
-import 'dart:io';
+
+import 'dart:io' as io;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:tradetrove/models/product.dart';
+import 'package:path/path.dart' as path;
 
 class ProductService {
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final FirebaseStorage _storage = FirebaseStorage.instance;
+  static final FirebaseFirestore _database = FirebaseFirestore.instance;
+  static final CollectionReference _productCollection =
+      _database.collection('product');
+  static final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  Future<void> createProduct({
-    required String uid,
-    required String merk,
-    required String tahun,
-    required String jarakTempuh,
-    required String bahanBakar,
-    required String warna,
-    required String description,
-    required String kapasitasMesin,
-    required String tipePenjual,
-    required String harga,
-    XFile? imageFile,
-  }) async {
+  //Tambah Data
+  static Future<void> addProduct(Product product) async {
+    Map<String, dynamic> newProduct = {
+      'merk': product.merk,
+      'tahun': product.tahun,
+      'jarakTempuh': product.jarakTempuh,
+      'bahanBakar': product.bahanBakar,
+      'warna': product.warna,
+      'description': product.description,
+      'kapasitasMesin': product.kapasitasMesin,
+      'tipePenjual': product.tipePenjual,
+      'harga': product.harga,
+      'image_Url': product.urlImage,
+      'created_at': FieldValue.serverTimestamp(),
+      'updated_at': FieldValue.serverTimestamp(),
+    };
+    await _productCollection.add(newProduct);
+  }
+
+  //Menampilkan Data
+   static Stream<List<Product>> getProductList() {
+    return _productCollection.snapshots().map((snapshot) {
+      return snapshot.docs.map((doc) {
+        Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+        return Product(
+          id: doc.id,
+          merk: data['merk'],
+          tahun: data['tahun'],
+          jarakTempuh: data['jarakTempuh'],
+          bahanBakar: data['bahanBakar'],
+          warna: data['warna'],
+          description: data['description'],
+          kapasitasMesin: data['kapasitasMesin'],
+          tipePenjual: data['tipePenjual'],
+          harga: data['harga'],
+          urlImage: data['image_Url'],
+          createdAt: data['created_at'] != null
+              ? data['created_at'] as Timestamp
+              : null,
+          updatedAt: data['updated_at'] != null
+              ? data['updated_at'] as Timestamp
+              : null,
+        );
+      }).toList();
+    });
+  }
+
+    // Method Update Product
+    static Future<void> updateNote(Product product) async {
+    Map<String, dynamic> updatedProduct = {
+      'merk': product.merk,
+      'tahun': product.tahun,
+      'jarakTempuh': product.jarakTempuh,
+      'bahanBakar': product.bahanBakar,
+      'warna': product.warna,
+      'description': product.description,
+      'kapasitasMesin': product.kapasitasMesin,
+      'tipePenjual': product.tipePenjual,
+      'harga': product.harga,
+      'image_Url': product.urlImage,
+      'created_at': product.createdAt,
+      'updated_at': FieldValue.serverTimestamp(),
+    };
+    await _productCollection.doc(product.id).update(updatedProduct);
+  }
+
+  //Method Hapus Product
+    static Future<void> deleteProduct(Product product) async {
+    await _productCollection.doc(product.id).delete();  }
+
+    //Upload Image
+
+    static Future<String?> uploadImage(XFile imageFile, String childName) async {
     try {
-      String imageUrl = '';
-      if (imageFile != null) {
-        final storageRef = _storage.ref().child('products/${imageFile.name}');
-        await storageRef.putFile(File(imageFile.path));
-        imageUrl = await storageRef.getDownloadURL();
+      String fileName = path.basename(imageFile.path);
+      Reference ref = _storage.ref().child('image/$childName/$fileName');
+      UploadTask uploadTask;
+       if (kIsWeb) {
+        uploadTask = ref.putData(await imageFile.readAsBytes());
+      } else {
+        uploadTask = ref.putFile(io.File(imageFile.path));
       }
-
-      await _firestore.collection('products').add({
-        'uid': uid,
-        'merk': merk,
-        'tahun': tahun,
-        'jarakTempuh': jarakTempuh,
-        'bahanBakar': bahanBakar,
-        'warna': warna,
-        'description': description,
-        'kapasitasMesin': kapasitasMesin,
-        'tipePenjual': tipePenjual,
-        'harga': harga,
-        'imageUrl': imageUrl,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
+      TaskSnapshot taskSnapshot = await uploadTask;
+      String downloadUrl = await taskSnapshot.ref.getDownloadURL();
+      return downloadUrl;
     } catch (e) {
-      throw Exception('Error creating product: $e');
+      return null;
     }
   }
 }

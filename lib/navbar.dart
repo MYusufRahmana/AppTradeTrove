@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:tradetrove/screens/Search_screen.dart';
+import 'package:tradetrove/screens/message_screen.dart';
 import 'package:tradetrove/screens/home_screen.dart';
 import 'package:tradetrove/screens/profil_screen.dart';
 import 'package:tradetrove/screens/Sell_screen.dart';
@@ -16,7 +16,7 @@ class NavbarState extends State<Navbar> {
   int _selectedIndex = 0;
   static List<Widget> _widgetOptions = <Widget>[
     HomeScreen(),
-    SearchScreen(),
+    messageScreen(),
     UploadProductScreen(),
     ProfileScreen(),
   ];
@@ -53,8 +53,8 @@ class NavbarState extends State<Navbar> {
                 text: 'Home',
               ),
               GButton(
-                icon: Icons.search,
-                text: 'Search',
+                icon: Icons.message_outlined,
+                text: 'Message',
               ),
               GButton(
                 icon: Icons.sell_outlined,

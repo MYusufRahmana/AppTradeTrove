@@ -1,16 +1,22 @@
-class product {
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+class Product {
+  String? id;
   final String merk;
   final String tahun;
-  final int jarakTempuh;
+  final String jarakTempuh;
   final String bahanBakar;
   final String warna;
   final String description;
   final String kapasitasMesin;
   final String tipePenjual;
-  final int    harga;
-    final String urlImage;
+  final String harga;
+  String? urlImage;
+  Timestamp? createdAt;
+  Timestamp? updatedAt;
 
-  product({
+  Product({
+    this.id,
     required this.merk,
     required this.tahun,
     required this.jarakTempuh,
@@ -21,10 +27,13 @@ class product {
     required this.tipePenjual,
     required this.harga,
     required this.urlImage,
+    this.createdAt,
+    this.updatedAt,
   });
 
-  factory product.fromMap(Map<String, dynamic> data, String documentId) {
-    return product(
+  factory Product.fromMap(Map<String, dynamic> data, String documentId) {
+    return Product(
+
       merk: data['merk'] ?? '',
       tahun: data['tahun'] ?? '',
       jarakTempuh: data['jarakTempuh'] ?? '',
@@ -35,6 +44,8 @@ class product {
       tipePenjual: data['tipePenjual'] ?? '',
       harga: data['harga'] ?? '',
       urlImage: data['urlImage'] ?? '',
+      createdAt: data['created_at'] as Timestamp,
+      updatedAt: data['updated_at'] as Timestamp,
     );
   }
 
@@ -50,6 +61,8 @@ class product {
       'tipePenjual': tipePenjual,
       'harga': harga,
       'urlimage': urlImage,
+      'created_at': createdAt,
+      'updated_at': updatedAt,
     };
   }
 }
