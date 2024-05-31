@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:tradetrove/models/product.dart';
 import 'package:tradetrove/services/product.dart';
 import 'package:tradetrove/services/registration_service.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -133,7 +135,34 @@ class ProductList extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 5),
-                              const Text('Jakarta Selatan, Jakarta Dki'),
+                            document.lat != null && document.lng != null
+                                ? InkWell(
+                                    onTap: () {
+                                      openMap(document.lat, document.lng); // Panggil fungsi openMap di sini
+                                    },
+                                    child: const Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 10),
+                                      child: Icon(Icons.map),
+                                    ),
+                                  )
+                                : const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 10),
+                                    child: Icon(
+                                      Icons.map,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                            InkWell(
+                              onTap: () {
+                                showAlertDialog(context, document);
+                              },
+                              child: const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 10),
+                                child: Icon(Icons.delete),
+                              ),
+                            ),
+                             
                             ],
                           ),
                         ),
@@ -144,6 +173,49 @@ class ProductList extends StatelessWidget {
               }).toList(),
             );
         }
+      },
+    );
+  }
+   Future<void> openMap(String? lat, String? lng) async {
+    Uri uri =
+        Uri.parse("https://www.google.com/maps/search/?api=1&query=$lat, $lng");
+    if (!await launchUrl(uri)) {
+      throw Exception('Could not launch $uri');
+    }
+  }
+
+  showAlertDialog(BuildContext context, Product document) {
+    // set up the buttons
+    Widget cancelButton = ElevatedButton(
+      child: const Text("No"),
+      onPressed: () {
+        Navigator.of(context).pop();
+      },
+    );
+    Widget continueButton = ElevatedButton(
+      child: const Text("Yes"),
+      onPressed: () {
+        ProductService.deleteProduct(document).whenComplete(() {
+          Navigator.of(context).pop();
+        });
+      },
+    );
+
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("Delete Note"),
+      content: const Text("Are you sure to delete Note?"),
+      actions: [
+        cancelButton,
+        continueButton,
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
       },
     );
   }

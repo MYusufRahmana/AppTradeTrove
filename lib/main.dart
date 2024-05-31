@@ -1,5 +1,9 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_config/flutter_config.dart';
 import 'package:tradetrove/authentication/login_screen.dart';
 import 'package:tradetrove/authentication/registrasi_screen.dart';
 import 'package:tradetrove/navbar.dart';
@@ -12,9 +16,12 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+
+  if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+    await FlutterConfig.loadEnvVariables();
+  }
   runApp(const MyApp());
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 

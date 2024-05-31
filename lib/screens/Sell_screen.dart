@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tradetrove/models/product.dart';
+import 'package:tradetrove/services/location_service.dart';
 import 'package:tradetrove/services/product.dart';
 import 'package:tradetrove/screens/home_screen.dart'; // Ganti dengan path ke HomeScreen Anda
 
@@ -24,6 +26,7 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
   final _kapasitasMesinController = TextEditingController();
   final _tipePenjualController = TextEditingController();
   final _hargaController = TextEditingController();
+  Position? _position;
   XFile? _imageFile;
 
   @override
@@ -43,12 +46,20 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
   }
 
   Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(source: ImageSource.gallery);
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     if (pickedFile != null) {
       setState(() {
         _imageFile = pickedFile;
       });
     }
+  }
+
+  Future<void> _getLocation() async {
+    final location = await LocationService().getCurrentLocation();
+    setState(() {
+      _position = location;
+    });
   }
 
   @override
@@ -83,8 +94,7 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
             SizedBox(height: 10.0),
             TextField(
               controller: _tahunController,
-               keyboardType: TextInputType
-                    .number,
+              keyboardType: TextInputType.number,
               decoration: InputDecoration(labelText: 'Tahun Mobil'),
             ),
             SizedBox(height: 10.0),
@@ -110,8 +120,7 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
             SizedBox(height: 10.0),
             TextField(
               controller: _kapasitasMesinController,
-               keyboardType: TextInputType
-                    .number,
+              keyboardType: TextInputType.number,
               decoration: InputDecoration(labelText: 'Kapasitas Mesin'),
             ),
             SizedBox(height: 10.0),
@@ -122,14 +131,23 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
             SizedBox(height: 10.0),
             TextField(
               controller: _hargaController,
-               keyboardType: TextInputType
-                    .number,
+              keyboardType: TextInputType.number,
               decoration: InputDecoration(labelText: 'Harga'),
             ),
             SizedBox(height: 20.0),
             ElevatedButton(
               onPressed: _pickImage,
               child: Text(_imageFile == null ? 'Pick Image' : 'Image Selected'),
+            ),
+            TextButton(
+              onPressed: _getLocation,
+              child: const Text("Get Location"),
+            ),
+            Text(
+              _position?.latitude != null && _position?.longitude != null
+                  ? 'Current Position : ${_position!.latitude.toString()}, ${_position!.longitude.toString()}'
+                  : 'Current Position : ${widget.product?.lat}, ${widget.product?.lng}',
+              textAlign: TextAlign.start,
             ),
             SizedBox(height: 5.0),
             _imageFile != null
@@ -139,7 +157,8 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
               onPressed: () async {
                 String? urlImage;
                 if (_imageFile != null) {
-                  urlImage = await ProductService.uploadImage(_imageFile!, 'list_image_product');
+                  urlImage = await ProductService.uploadImage(
+                      _imageFile!, 'list_image_product');
                 } else {
                   urlImage = widget.product?.urlImage;
                 }
@@ -155,6 +174,14 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
                   tipePenjual: _tipePenjualController.text,
                   harga: _hargaController.text,
                   urlImage: urlImage,
+                  lat: widget.product?.lat.toString() !=
+                          _position!.latitude.toString()
+                      ? _position!.latitude.toString()
+                      : widget.product?.lat.toString(),
+                  lng: widget.product?.lng.toString() !=
+                          _position!.longitude.toString()
+                      ? _position!.longitude.toString()
+                      : widget.product?.lng.toString(),
                   createdAt: widget.product?.createdAt,
                 );
                 try {
@@ -167,7 +194,9 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
                     SnackBar(content: Text('Product uploaded successfully')),
                   );
                   Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(builder: (context) => HomeScreen()), // Ganti dengan path ke HomeScreen Anda
+                    MaterialPageRoute(
+                        builder: (context) =>
+                            HomeScreen()), // Ganti dengan path ke HomeScreen Anda
                     (Route<dynamic> route) => false,
                   );
                 } catch (e) {

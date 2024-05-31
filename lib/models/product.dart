@@ -11,6 +11,8 @@ class Product {
   final String kapasitasMesin;
   final String tipePenjual;
   final String harga;
+  String? lat;
+  String? lng;
   String? urlImage;
   Timestamp? createdAt;
   Timestamp? updatedAt;
@@ -27,13 +29,14 @@ class Product {
     required this.tipePenjual,
     required this.harga,
     required this.urlImage,
+    this.lat,
+    this.lng,
     this.createdAt,
     this.updatedAt,
   });
 
   factory Product.fromMap(Map<String, dynamic> data, String documentId) {
     return Product(
-
       merk: data['merk'] ?? '',
       tahun: data['tahun'] ?? '',
       jarakTempuh: data['jarakTempuh'] ?? '',
@@ -44,6 +47,8 @@ class Product {
       tipePenjual: data['tipePenjual'] ?? '',
       harga: data['harga'] ?? '',
       urlImage: data['urlImage'] ?? '',
+      lat: data['lat'],
+      lng: data['lng'],
       createdAt: data['created_at'] as Timestamp,
       updatedAt: data['updated_at'] as Timestamp,
     );
@@ -61,6 +66,8 @@ class Product {
       'tipePenjual': tipePenjual,
       'harga': harga,
       'urlimage': urlImage,
+      'lat': lat,
+      'lng': lng,
       'created_at': createdAt,
       'updated_at': updatedAt,
     };

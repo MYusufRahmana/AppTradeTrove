@@ -1,4 +1,3 @@
-
 import 'dart:io' as io;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -26,6 +25,8 @@ class ProductService {
       'tipePenjual': product.tipePenjual,
       'harga': product.harga,
       'image_Url': product.urlImage,
+      'lat': product.lat,
+      'lng': product.lng,
       'created_at': FieldValue.serverTimestamp(),
       'updated_at': FieldValue.serverTimestamp(),
     };
@@ -33,7 +34,7 @@ class ProductService {
   }
 
   //Menampilkan Data
-   static Stream<List<Product>> getProductList() {
+  static Stream<List<Product>> getProductList() {
     return _productCollection.snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
@@ -49,6 +50,8 @@ class ProductService {
           tipePenjual: data['tipePenjual'],
           harga: data['harga'],
           urlImage: data['image_Url'],
+          lat: data['lat'],
+          lng: data['lng'],
           createdAt: data['created_at'] != null
               ? data['created_at'] as Timestamp
               : null,
@@ -60,8 +63,8 @@ class ProductService {
     });
   }
 
-    // Method Update Product
-    static Future<void> updateNote(Product product) async {
+  // Method Update Product
+  static Future<void> updateNote(Product product) async {
     Map<String, dynamic> updatedProduct = {
       'merk': product.merk,
       'tahun': product.tahun,
@@ -73,6 +76,8 @@ class ProductService {
       'tipePenjual': product.tipePenjual,
       'harga': product.harga,
       'image_Url': product.urlImage,
+      'lat': product.lat,
+      'lng': product.lng,
       'created_at': product.createdAt,
       'updated_at': FieldValue.serverTimestamp(),
     };
@@ -80,17 +85,18 @@ class ProductService {
   }
 
   //Method Hapus Product
-    static Future<void> deleteProduct(Product product) async {
-    await _productCollection.doc(product.id).delete();  }
+  static Future<void> deleteProduct(Product product) async {
+    await _productCollection.doc(product.id).delete();
+  }
 
-    //Upload Image
+  //Upload Image
 
-    static Future<String?> uploadImage(XFile imageFile, String childName) async {
+  static Future<String?> uploadImage(XFile imageFile, String childName) async {
     try {
       String fileName = path.basename(imageFile.path);
       Reference ref = _storage.ref().child('image/$childName/$fileName');
       UploadTask uploadTask;
-       if (kIsWeb) {
+      if (kIsWeb) {
         uploadTask = ref.putData(await imageFile.readAsBytes());
       } else {
         uploadTask = ref.putFile(io.File(imageFile.path));
