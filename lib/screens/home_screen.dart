@@ -86,7 +86,7 @@ class ProductList extends StatelessWidget {
                   margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   child: InkWell(
                     onTap: () {
-                      // Add navigation or other actions here
+                      
                     },
                     child: Column(
                       children: [
