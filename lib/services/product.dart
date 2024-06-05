@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:tradetrove/models/product.dart';
 import 'package:path/path.dart' as path;
+import 'package:tradetrove/services/registration_service.dart';
 
 class ProductService {
   static final FirebaseFirestore _database = FirebaseFirestore.instance;
@@ -12,9 +13,15 @@ class ProductService {
       _database.collection('product');
   static final FirebaseStorage _storage = FirebaseStorage.instance;
 
-  //Tambah Data
+  // Tambah Data
   static Future<void> addProduct(Product product) async {
+    final currentUserName = await RegistrationService.getCurrentUserName();
+    if (currentUserName == null) {
+      throw Exception('User not found');
+    }
+
     Map<String, dynamic> newProduct = {
+      'userName': currentUserName,
       'merk': product.merk,
       'tahun': product.tahun,
       'jarakTempuh': product.jarakTempuh,
@@ -24,7 +31,7 @@ class ProductService {
       'kapasitasMesin': product.kapasitasMesin,
       'tipePenjual': product.tipePenjual,
       'harga': product.harga,
-      'image_Url': product.urlImage,
+      'urlImage': product.urlImage,
       'lat': product.lat,
       'lng': product.lng,
       'created_at': FieldValue.serverTimestamp(),
@@ -33,38 +40,18 @@ class ProductService {
     await _productCollection.add(newProduct);
   }
 
-  //Menampilkan Data
+  // Menampilkan Data
   static Stream<List<Product>> getProductList() {
     return _productCollection.snapshots().map((snapshot) {
       return snapshot.docs.map((doc) {
         Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
-        return Product(
-          id: doc.id,
-          merk: data['merk'],
-          tahun: data['tahun'],
-          jarakTempuh: data['jarakTempuh'],
-          bahanBakar: data['bahanBakar'],
-          warna: data['warna'],
-          description: data['description'],
-          kapasitasMesin: data['kapasitasMesin'],
-          tipePenjual: data['tipePenjual'],
-          harga: data['harga'],
-          urlImage: data['image_Url'],
-          lat: data['lat'],
-          lng: data['lng'],
-          createdAt: data['created_at'] != null
-              ? data['created_at'] as Timestamp
-              : null,
-          updatedAt: data['updated_at'] != null
-              ? data['updated_at'] as Timestamp
-              : null,
-        );
+        return Product.fromMap(data, doc.id);
       }).toList();
     });
   }
 
   // Method Update Product
-  static Future<void> updateNote(Product product) async {
+  static Future<void> updateProduct(Product product) async {
     Map<String, dynamic> updatedProduct = {
       'merk': product.merk,
       'tahun': product.tahun,
@@ -75,22 +62,22 @@ class ProductService {
       'kapasitasMesin': product.kapasitasMesin,
       'tipePenjual': product.tipePenjual,
       'harga': product.harga,
-      'image_Url': product.urlImage,
+      'urlImage': product.urlImage,
       'lat': product.lat,
       'lng': product.lng,
+      'userName': product.userName,
       'created_at': product.createdAt,
       'updated_at': FieldValue.serverTimestamp(),
     };
     await _productCollection.doc(product.id).update(updatedProduct);
   }
 
-  //Method Hapus Product
+  // Method Hapus Product
   static Future<void> deleteProduct(Product product) async {
     await _productCollection.doc(product.id).delete();
   }
 
-  //Upload Image
-
+  // Upload Image
   static Future<String?> uploadImage(XFile imageFile, String childName) async {
     try {
       String fileName = path.basename(imageFile.path);

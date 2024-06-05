@@ -41,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: Color.fromRGBO(222, 205, 249, 1)
+                fillColor: Color.fromRGBO(222, 205, 249, 1),
               ),
             ),
           ),
@@ -59,7 +59,7 @@ class ProductList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
+    return StreamBuilder<List<Product>>(
       stream: ProductService.getProductList(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
@@ -87,27 +87,23 @@ class ProductList extends StatelessWidget {
                 return Card(
                   margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   child: InkWell(
-                    onTap: () {
-                      
-                    },
+                    onTap: () {},
                     child: Column(
                       children: [
-                        document.urlImage != null &&
-                                Uri.parse(document.urlImage!).isAbsolute
-                            ? ClipRRect(
-                                borderRadius: const BorderRadius.only(
-                                  topLeft: Radius.circular(16),
-                                  topRight: Radius.circular(16),
-                                ),
-                                child: Image.network(
-                                  document.urlImage!,
-                                  fit: BoxFit.cover,
-                                  alignment: Alignment.center,
-                                  width: double.infinity,
-                                  height: 150,
-                                ),
-                              )
-                            : Container(),
+                        if (document.urlImage != null && Uri.parse(document.urlImage!).isAbsolute)
+                          ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(16),
+                              topRight: Radius.circular(16),
+                            ),
+                            child: Image.network(
+                              document.urlImage!,
+                              fit: BoxFit.cover,
+                              alignment: Alignment.center,
+                              width: double.infinity,
+                              height: 150,
+                            ),
+                          ),
                         ListTile(
                           title: Text(
                             document.merk,
@@ -135,34 +131,46 @@ class ProductList extends StatelessWidget {
                                 ),
                               ),
                               const SizedBox(height: 5),
-                            document.lat != null && document.lng != null
-                                ? InkWell(
+                              Text(
+                                 '${document.userName}',
+                                style: const TextStyle(
+                                  color: Colors.black54,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 5),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  if (document.lat != null && document.lng != null)
+                                    InkWell(
+                                      onTap: () {
+                                        openMap(document.lat, document.lng);
+                                      },
+                                      child: const Padding(
+                                        padding: EdgeInsets.symmetric(vertical: 10),
+                                        child: Icon(Icons.maps_home_work_outlined),
+                                      ),
+                                    )
+                                  else
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 10),
+                                      child: Icon(
+                                        Icons.maps_home_work_outlined,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  InkWell(
                                     onTap: () {
-                                      openMap(document.lat, document.lng); // Panggil fungsi openMap di sini
+                                      showAlertDialog(context, document);
                                     },
                                     child: const Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 10),
-                                      child: Icon(Icons.map),
-                                    ),
-                                  )
-                                : const Padding(
-                                    padding: EdgeInsets.symmetric(vertical: 10),
-                                    child: Icon(
-                                      Icons.map,
-                                      color: Colors.grey,
+                                      padding: EdgeInsets.symmetric(vertical: 10),
+                                      child: Icon(Icons.delete),
                                     ),
                                   ),
-                            InkWell(
-                              onTap: () {
-                                showAlertDialog(context, document);
-                              },
-                              child: const Padding(
-                                padding: EdgeInsets.symmetric(vertical: 10),
-                                child: Icon(Icons.delete),
+                                ],
                               ),
-                            ),
-                             
                             ],
                           ),
                         ),
@@ -176,9 +184,9 @@ class ProductList extends StatelessWidget {
       },
     );
   }
-   Future<void> openMap(String? lat, String? lng) async {
-    Uri uri =
-        Uri.parse("https://www.google.com/maps/search/?api=1&query=$lat, $lng");
+
+  Future<void> openMap(String? lat, String? lng) async {
+    Uri uri = Uri.parse("https://www.google.com/maps/search/?api=1&query=$lat,$lng");
     if (!await launchUrl(uri)) {
       throw Exception('Could not launch $uri');
     }

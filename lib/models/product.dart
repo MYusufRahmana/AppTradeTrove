@@ -16,6 +16,7 @@ class Product {
   String? urlImage;
   Timestamp? createdAt;
   Timestamp? updatedAt;
+  String? userName;
 
   Product({
     this.id,
@@ -28,15 +29,17 @@ class Product {
     required this.kapasitasMesin,
     required this.tipePenjual,
     required this.harga,
-    required this.urlImage,
+    this.urlImage,
     this.lat,
     this.lng,
     this.createdAt,
     this.updatedAt,
+    this.userName,
   });
 
   factory Product.fromMap(Map<String, dynamic> data, String documentId) {
     return Product(
+      id: documentId,
       merk: data['merk'] ?? '',
       tahun: data['tahun'] ?? '',
       jarakTempuh: data['jarakTempuh'] ?? '',
@@ -46,11 +49,12 @@ class Product {
       kapasitasMesin: data['kapasitasMesin'] ?? '',
       tipePenjual: data['tipePenjual'] ?? '',
       harga: data['harga'] ?? '',
-      urlImage: data['urlImage'] ?? '',
+      urlImage: data['urlImage'],
       lat: data['lat'],
       lng: data['lng'],
-      createdAt: data['created_at'] as Timestamp,
-      updatedAt: data['updated_at'] as Timestamp,
+      userName: data['userName'],
+      createdAt: data['created_at'] as Timestamp?,
+      updatedAt: data['updated_at'] as Timestamp?,
     );
   }
 
@@ -58,38 +62,19 @@ class Product {
     return {
       'merk': merk,
       'tahun': tahun,
-      'tittle': jarakTempuh,
+      'jarakTempuh': jarakTempuh,
       'bahanBakar': bahanBakar,
       'warna': warna,
       'description': description,
       'kapasitasMesin': kapasitasMesin,
       'tipePenjual': tipePenjual,
       'harga': harga,
-      'urlimage': urlImage,
+      'urlImage': urlImage,
       'lat': lat,
       'lng': lng,
       'created_at': createdAt,
       'updated_at': updatedAt,
-    };
-  }
-}
-
-class Favorite {
-  final String userId;
-
-  Favorite({
-    required this.userId,
-  });
-
-  factory Favorite.fromMap(Map<String, dynamic> data) {
-    return Favorite(
-      userId: data['userId'] ?? '',
-    );
-  }
-
-  Map<String, dynamic> toMap() {
-    return {
-      'userId': userId,
+      'userName': userName,
     };
   }
 }

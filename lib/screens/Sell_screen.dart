@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
@@ -6,14 +5,15 @@ import 'package:tradetrove/models/product.dart';
 import 'package:tradetrove/services/location_service.dart';
 import 'package:tradetrove/services/product.dart';
 import 'package:tradetrove/screens/home_screen.dart'; // Ganti dengan path ke HomeScreen Anda
+import 'package:flutter/services.dart';
 
 class UploadProductScreen extends StatefulWidget {
   final Product? product;
 
-  const UploadProductScreen({super.key, this.product});
+  const UploadProductScreen({Key? key, this.product}) : super(key: key);
 
   @override
-  State<UploadProductScreen> createState() => _UploadProductScreenState();
+  _UploadProductScreenState createState() => _UploadProductScreenState();
 }
 
 class _UploadProductScreenState extends State<UploadProductScreen> {
@@ -24,7 +24,7 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
   final _warnaController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _kapasitasMesinController = TextEditingController();
-  final _tipePenjualController = TextEditingController();
+  final _tipePenjualController = TextEditingController(); // Tambahkan controller untuk tipe penjual
   final _hargaController = TextEditingController();
   Position? _position;
   XFile? _imageFile;
@@ -40,26 +40,9 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
       _warnaController.text = widget.product!.warna;
       _descriptionController.text = widget.product!.description;
       _kapasitasMesinController.text = widget.product!.kapasitasMesin;
-      _tipePenjualController.text = widget.product!.tipePenjual;
+      _tipePenjualController.text = widget.product!.tipePenjual; // Assign nilai tipe penjual
       _hargaController.text = widget.product!.harga;
     }
-  }
-
-  Future<void> _pickImage() async {
-    final pickedFile =
-        await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (pickedFile != null) {
-      setState(() {
-        _imageFile = pickedFile;
-      });
-    }
-  }
-
-  Future<void> _getLocation() async {
-    final location = await LocationService().getCurrentLocation();
-    setState(() {
-      _position = location;
-    });
   }
 
   @override
@@ -94,12 +77,15 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
             SizedBox(height: 10.0),
             TextField(
               controller: _tahunController,
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.number, // Hanya memperbolehkan input angka
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly], // Memastikan hanya angka yang bisa dimasukkan
               decoration: InputDecoration(labelText: 'Tahun Mobil'),
             ),
             SizedBox(height: 10.0),
             TextField(
               controller: _jarakTempuhController,
+              keyboardType: TextInputType.number, // Hanya memperbolehkan input angka
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly], // Memastikan hanya angka yang bisa dimasukkan
               decoration: InputDecoration(labelText: 'Jarak Tempuh'),
             ),
             SizedBox(height: 10.0),
@@ -120,18 +106,20 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
             SizedBox(height: 10.0),
             TextField(
               controller: _kapasitasMesinController,
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.number, // Hanya memperbolehkan input angka
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly], // Memastikan hanya angka yang bisa dimasukkan
               decoration: InputDecoration(labelText: 'Kapasitas Mesin'),
             ),
             SizedBox(height: 10.0),
             TextField(
-              controller: _tipePenjualController,
+              controller: _tipePenjualController, // Menambahkan TextField untuk tipe penjual
               decoration: InputDecoration(labelText: 'Tipe Penjual'),
             ),
             SizedBox(height: 10.0),
             TextField(
               controller: _hargaController,
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.number, // Hanya memperbolehkan input angka
+              inputFormatters: [FilteringTextInputFormatter.digitsOnly], // Memastikan hanya angka yang bisa dimasukkan
               decoration: InputDecoration(labelText: 'Harga'),
             ),
             SizedBox(height: 20.0),
@@ -171,7 +159,7 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
                   warna: _warnaController.text,
                   description: _descriptionController.text,
                   kapasitasMesin: _kapasitasMesinController.text,
-                  tipePenjual: _tipePenjualController.text,
+                  tipePenjual: _tipePenjualController.text, // Mengambil nilai dari controller tipe penjual
                   harga: _hargaController.text,
                   urlImage: urlImage,
                   lat: widget.product?.lat.toString() !=
@@ -212,5 +200,22 @@ class _UploadProductScreenState extends State<UploadProductScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _pickImage() async {
+    final pickedFile =
+        await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _imageFile = pickedFile;
+      });
+    }
+  }
+
+  Future<void> _getLocation() async {
+    final location = await LocationService().getCurrentLocation();
+    setState(() {
+      _position = location;
+    });
   }
 }

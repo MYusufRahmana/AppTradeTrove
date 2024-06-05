@@ -10,8 +10,9 @@ class RegistrationService {
   static final CollectionReference _usersCollection =
       _database.collection('users');
   static final FirebaseStorage _storage = FirebaseStorage.instance;
+
   Future<void> registerUser({
-    required String uid, // Tambahkan parameter UID di sini
+    required String uid,
     required String fullName,
     required String address,
     required String phoneNumber,
@@ -34,18 +35,29 @@ class RegistrationService {
     }
   }
 
-  
- static Future<void> updateUser(MyUser myuser) async {
+  static Future<void> updateUser(MyUser myUser) async {
     Map<String, dynamic> updatedUser = {
-      'fullName' : myuser.fullName,
-      'address' : myuser.address,
-      'phoneNumber' : myuser.phoneNumber,
-      'image_url': myuser.imageUrl,
+      'fullName': myUser.fullName,
+      'address': myUser.address,
+      'phoneNumber': myUser.phoneNumber,
+      'imageUrl': myUser.imageUrl,
     };
-    await _usersCollection.doc(myuser.id).update(updatedUser);
+    await _usersCollection.doc(myUser.id).update(updatedUser);
   }
 
+  static Future<String?> getCurrentUserName() async {
+    final currentUserId = AuthService.currentUserId;
+    if (currentUserId == null) return null;
+
+    DocumentSnapshot userDoc = await _usersCollection.doc(currentUserId).get();
+    if (userDoc.exists) {
+      Map<String, dynamic> userData = userDoc.data() as Map<String, dynamic>;
+      return userData['fullName'];
+    }
+    return null;
+  }
 }
+
 class SignOutService {
   Future<void> signOut() async {
     try {
@@ -59,7 +71,6 @@ class SignOutService {
   }
 }
 
-
 Future<String?> getUser() async {
   User? user = FirebaseAuth.instance.currentUser;
   if (user != null) {
@@ -67,4 +78,10 @@ Future<String?> getUser() async {
   } else {
     return ('error');
   }
+}
+
+class AuthService {
+  static final FirebaseAuth _auth = FirebaseAuth.instance;
+  static User? get currentUser => _auth.currentUser;
+  static String? get currentUserId => _auth.currentUser?.uid;
 }
