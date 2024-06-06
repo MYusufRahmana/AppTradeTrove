@@ -44,6 +44,10 @@ flutter:
   assets:
   - assets/images/logoTt.png
   - assets/images/shopping-items.png
+  - assets/images/jarakTempuh.png
+  - assets/images/bahanBakar.png
+  - assets/images/lokasi.png
+  - assets/images/chatIcon.png
 
   fonts:
   - family: Lato

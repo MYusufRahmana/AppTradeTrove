@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:tradetrove/models/product.dart';
+import 'package:tradetrove/screens/detail_sellProduct.dart';
 import 'package:tradetrove/services/product.dart';
 import 'package:tradetrove/services/registration_service.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:tradetrove/screens/detail_sellProduct.dart'; // Import file detail screen
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -21,7 +23,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text('TradeTrove'),
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(40.0),
           child: Padding(
@@ -87,7 +89,9 @@ class ProductList extends StatelessWidget {
                 return Card(
                   margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   child: InkWell(
-                    onTap: () {},
+                    onTap: () {
+                      _navigateToProductDetail(context, document);
+                    },
                     child: Column(
                       children: [
                         if (document.urlImage != null && Uri.parse(document.urlImage!).isAbsolute)
@@ -116,7 +120,7 @@ class ProductList extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Rp${document.harga}',
+                                'Rp.${document.harga}',
                                 style: const TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,
@@ -132,7 +136,7 @@ class ProductList extends StatelessWidget {
                               ),
                               const SizedBox(height: 5),
                               Text(
-                                 '${document.userName}',
+                                '${document.userName}',
                                 style: const TextStyle(
                                   color: Colors.black54,
                                   fontSize: 12,
@@ -225,6 +229,15 @@ class ProductList extends StatelessWidget {
       builder: (BuildContext context) {
         return alert;
       },
+    );
+  }
+
+  void _navigateToProductDetail(BuildContext context, Product product) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProductDetailScreen(product: product),
+      ),
     );
   }
 }

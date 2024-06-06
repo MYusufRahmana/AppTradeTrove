@@ -6,7 +6,8 @@ import 'package:url_launcher/url_launcher.dart';
 class ProductDetailScreen extends StatelessWidget {
   final Product product;
 
-  const ProductDetailScreen({Key? key, required this.product}) : super(key: key);
+  const ProductDetailScreen({Key? key, required this.product})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -19,7 +20,8 @@ class ProductDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (product.urlImage != null && Uri.parse(product.urlImage!).isAbsolute)
+            if (product.urlImage != null &&
+                Uri.parse(product.urlImage!).isAbsolute)
               ClipRRect(
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(16),
@@ -59,23 +61,65 @@ class ProductDetailScreen extends StatelessWidget {
                       fontSize: 14,
                     ),
                   ),
-                  Text(
-                    'Deskripsi: ${product.description}',
-                    style: const TextStyle(
-                      color: Colors.black87,
-                      fontSize: 16,
-                    ),
+                  Row(
+                    children: [
+                      Image.asset(
+                        'assets/images/bahanBakar.png',
+                        width: 25,
+                        height: 25,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        '${product.bahanBakar}',
+                        style: const TextStyle(
+                          color: Colors.black87,
+                          fontSize: 16,
+                        ),
+                      ),
+                      SizedBox(width: 20),
+                      Image.asset(
+                        'assets/images/jarakTempuh.png',
+                        width: 50,
+                        height: 50,
+                      ),
+                      SizedBox(width: 4),
+                      Text(
+                        '${product.jarakTempuh}',
+                        style: const TextStyle(
+                          color: Colors.black87,
+                          fontSize: 16,
+                        ),
+                      ),
+                      SizedBox(width: 20),
+                      IconButton(
+                        onPressed: () {
+                          _openMap(product.lat, product.lng);
+                        },
+                        icon: Image.asset(
+                          'assets/images/lokasi.png', // Ganti dengan path gambar ikon kustom Anda
+                          width: 50,
+                          height: 50,
+                        ),
+                        tooltip: 'Open Location',
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
             SizedBox(height: 20),
-            ElevatedButton(
+            ElevatedButton.icon(
               onPressed: () {
-                _openMap(product.lat, product.lng);
+                // Tambahkan logika yang sesuai di sini
               },
-              child: const Text('Open Location'),
+              icon: Image.asset(
+                'assets/images/chatIcon.png',
+                width: 24,
+                height: 24,
+              ),
+              label: Text('Chat Penjual'),
             ),
+            SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
                 _showConfirmationDialog(context);
@@ -89,7 +133,8 @@ class ProductDetailScreen extends StatelessWidget {
   }
 
   Future<void> _openMap(String? lat, String? lng) async {
-    final Uri uri = Uri.parse("https://www.google.com/maps/search/?api=1&query=$lat,$lng");
+    final Uri uri =
+        Uri.parse("https://www.google.com/maps/search/?api=1&query=$lat,$lng");
     if (!await launchUrl(uri)) {
       throw Exception('Could not launch $uri');
     }
