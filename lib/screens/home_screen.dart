@@ -3,8 +3,7 @@ import 'package:tradetrove/models/product.dart';
 import 'package:tradetrove/screens/detail_sellProduct.dart';
 import 'package:tradetrove/services/product.dart';
 import 'package:tradetrove/services/registration_service.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:tradetrove/screens/detail_sellProduct.dart'; // Import file detail screen
+import 'package:url_launcher/url_launcher.dart'; // Import file detail screen
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -14,10 +13,23 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
   final RegistrationService getUser = RegistrationService();
   final TextEditingController _searchController = TextEditingController();
   String _searchText = '';
+  String? _currentUserName;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentUser();
+  }
+
+  Future<void> _loadCurrentUser() async {
+    String? userName = await RegistrationService.getCurrentUserName();
+    setState(() {
+      _currentUserName = userName;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,15 +61,16 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
       ),
-      body: ProductList(searchText: _searchText),
+      body: ProductList(searchText: _searchText, currentUserName: _currentUserName),
     );
   }
 }
 
 class ProductList extends StatelessWidget {
   final String searchText;
+  final String? currentUserName;
 
-  const ProductList({Key? key, required this.searchText}) : super(key: key);
+  const ProductList({Key? key, required this.searchText, required this.currentUserName}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -164,15 +177,16 @@ class ProductList extends StatelessWidget {
                                         color: Colors.grey,
                                       ),
                                     ),
-                                  InkWell(
-                                    onTap: () {
-                                      showAlertDialog(context, document);
-                                    },
-                                    child: const Padding(
-                                      padding: EdgeInsets.symmetric(vertical: 10),
-                                      child: Icon(Icons.delete),
+                                  if (document.userName == currentUserName)
+                                    InkWell(
+                                      onTap: () {
+                                        showAlertDialog(context, document);
+                                      },
+                                      child: const Padding(
+                                        padding: EdgeInsets.symmetric(vertical: 10),
+                                        child: Icon(Icons.delete),
+                                      ),
                                     ),
-                                  ),
                                 ],
                               ),
                             ],

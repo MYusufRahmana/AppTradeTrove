@@ -27,6 +27,7 @@ dependencies:
   url_launcher: ^6.2.6
   latlong2: ^0.9.1
   flutter_config: ^2.0.2
+  rxdart: ^0.27.1
 
 flutter_launch_icons:
   android: "launcher_icon"

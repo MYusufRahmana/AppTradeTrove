@@ -1,13 +1,37 @@
 import 'package:flutter/material.dart';
 import 'package:tradetrove/models/product.dart';
 import 'package:tradetrove/services/product.dart';
+import 'package:tradetrove/services/registration_service.dart';
+import 'package:tradetrove/screens/chat.dart'; // Pastikan Anda mengimpor layar chat
 import 'package:url_launcher/url_launcher.dart';
 
-class ProductDetailScreen extends StatelessWidget {
+class ProductDetailScreen extends StatefulWidget {
   final Product product;
 
-  const ProductDetailScreen({Key? key, required this.product})
-      : super(key: key);
+  const ProductDetailScreen({Key? key, required this.product}) : super(key: key);
+
+  @override
+  _ProductDetailScreenState createState() => _ProductDetailScreenState();
+}
+
+class _ProductDetailScreenState extends State<ProductDetailScreen> {
+  String? _currentUserName;
+  String? _currentUserId;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCurrentUser();
+  }
+
+  Future<void> _loadCurrentUser() async {
+    String? userName = await RegistrationService.getCurrentUserName();
+    String? userId = AuthService.currentUserId; // Pastikan Anda mendapatkan ID pengguna saat ini
+    setState(() {
+      _currentUserName = userName;
+      _currentUserId = userId;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -20,15 +44,14 @@ class ProductDetailScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (product.urlImage != null &&
-                Uri.parse(product.urlImage!).isAbsolute)
+            if (widget.product.urlImage != null && Uri.parse(widget.product.urlImage!).isAbsolute)
               ClipRRect(
                 borderRadius: const BorderRadius.only(
                   topLeft: Radius.circular(16),
                   topRight: Radius.circular(16),
                 ),
                 child: Image.network(
-                  product.urlImage!,
+                  widget.product.urlImage!,
                   fit: BoxFit.cover,
                   alignment: Alignment.center,
                   width: double.infinity,
@@ -37,7 +60,7 @@ class ProductDetailScreen extends StatelessWidget {
               ),
             ListTile(
               title: Text(
-                product.merk,
+                widget.product.merk,
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
@@ -47,7 +70,7 @@ class ProductDetailScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Rp${product.harga}',
+                    'Rp${widget.product.harga}',
                     style: const TextStyle(
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
@@ -55,7 +78,7 @@ class ProductDetailScreen extends StatelessWidget {
                     ),
                   ),
                   Text(
-                    'Tahun: ${product.tahun}',
+                    'Tahun: ${widget.product.tahun}',
                     style: const TextStyle(
                       color: Colors.black54,
                       fontSize: 14,
@@ -70,7 +93,7 @@ class ProductDetailScreen extends StatelessWidget {
                       ),
                       SizedBox(width: 4),
                       Text(
-                        '${product.bahanBakar}',
+                        '${widget.product.bahanBakar}',
                         style: const TextStyle(
                           color: Colors.black87,
                           fontSize: 16,
@@ -84,7 +107,7 @@ class ProductDetailScreen extends StatelessWidget {
                       ),
                       SizedBox(width: 4),
                       Text(
-                        '${product.jarakTempuh}',
+                        '${widget.product.jarakTempuh}',
                         style: const TextStyle(
                           color: Colors.black87,
                           fontSize: 16,
@@ -93,7 +116,7 @@ class ProductDetailScreen extends StatelessWidget {
                       SizedBox(width: 20),
                       IconButton(
                         onPressed: () {
-                          _openMap(product.lat, product.lng);
+                          _openMap(widget.product.lat, widget.product.lng);
                         },
                         icon: Image.asset(
                           'assets/images/lokasi.png', // Ganti dengan path gambar ikon kustom Anda
@@ -110,7 +133,18 @@ class ProductDetailScreen extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton.icon(
               onPressed: () {
-                // Tambahkan logika yang sesuai di sini
+                if (_currentUserId != null) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChatScreen(
+                        currentUserId: _currentUserId!,
+                        otherUserId: widget.product.userId!, // Pastikan `userId` ada di model produk
+                        otherUserName: widget.product.userName!,
+                      ),
+                    ),
+                  );
+                }
               },
               icon: Image.asset(
                 'assets/images/chatIcon.png',
@@ -120,12 +154,13 @@ class ProductDetailScreen extends StatelessWidget {
               label: Text('Chat Penjual'),
             ),
             SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                _showConfirmationDialog(context);
-              },
-              child: const Text('Delete Product'),
-            ),
+            if (widget.product.userName == _currentUserName)
+              ElevatedButton(
+                onPressed: () {
+                  _showConfirmationDialog(context);
+                },
+                child: const Text('Delete Product'),
+              ),
           ],
         ),
       ),
@@ -133,8 +168,7 @@ class ProductDetailScreen extends StatelessWidget {
   }
 
   Future<void> _openMap(String? lat, String? lng) async {
-    final Uri uri =
-        Uri.parse("https://www.google.com/maps/search/?api=1&query=$lat,$lng");
+    final Uri uri = Uri.parse("https://www.google.com/maps/search/?api=1&query=$lat,$lng");
     if (!await launchUrl(uri)) {
       throw Exception('Could not launch $uri');
     }
@@ -150,7 +184,7 @@ class ProductDetailScreen extends StatelessWidget {
     );
     final Widget continueButton = ElevatedButton(
       onPressed: () {
-        ProductService.deleteProduct(product).whenComplete(() {
+        ProductService.deleteProduct(widget.product).whenComplete(() {
           Navigator.of(context).popUntil((route) => route.isFirst);
         });
       },

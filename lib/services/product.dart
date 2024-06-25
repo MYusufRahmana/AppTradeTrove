@@ -9,19 +9,20 @@ import 'package:tradetrove/services/registration_service.dart';
 
 class ProductService {
   static final FirebaseFirestore _database = FirebaseFirestore.instance;
-  static final CollectionReference _productCollection =
-      _database.collection('product');
+  static final CollectionReference _productCollection = _database.collection('product');
   static final FirebaseStorage _storage = FirebaseStorage.instance;
 
   // Tambah Data
   static Future<void> addProduct(Product product) async {
     final currentUserName = await RegistrationService.getCurrentUserName();
-    if (currentUserName == null) {
+    final currentUserId = AuthService.currentUserId;
+    if (currentUserName == null || currentUserId == null) {
       throw Exception('User not found');
     }
 
     Map<String, dynamic> newProduct = {
       'userName': currentUserName,
+      'userId': currentUserId, // Tambahkan ini
       'merk': product.merk,
       'tahun': product.tahun,
       'jarakTempuh': product.jarakTempuh,
@@ -66,6 +67,7 @@ class ProductService {
       'lat': product.lat,
       'lng': product.lng,
       'userName': product.userName,
+      'userId': product.userId, // Tambahkan ini
       'created_at': product.createdAt,
       'updated_at': FieldValue.serverTimestamp(),
     };
@@ -74,7 +76,22 @@ class ProductService {
 
   // Method Hapus Product
   static Future<void> deleteProduct(Product product) async {
-    await _productCollection.doc(product.id).delete();
+    final currentUserName = await RegistrationService.getCurrentUserName();
+    if (currentUserName == null) {
+      throw Exception('User not found');
+    }
+
+    DocumentSnapshot docSnapshot = await _productCollection.doc(product.id).get();
+    if (docSnapshot.exists) {
+      String productOwner = docSnapshot['userName'];
+      if (productOwner == currentUserName) {
+        await _productCollection.doc(product.id).delete();
+      } else {
+        throw Exception('You do not have permission to delete this product');
+      }
+    } else {
+      throw Exception('Product not found');
+    }
   }
 
   // Upload Image

@@ -17,6 +17,7 @@ class Product {
   Timestamp? createdAt;
   Timestamp? updatedAt;
   String? userName;
+  String? userId; // Tambahkan ini
 
   Product({
     this.id,
@@ -35,6 +36,7 @@ class Product {
     this.createdAt,
     this.updatedAt,
     this.userName,
+    this.userId, // Tambahkan ini
   });
 
   factory Product.fromMap(Map<String, dynamic> data, String documentId) {
@@ -53,6 +55,7 @@ class Product {
       lat: data['lat'],
       lng: data['lng'],
       userName: data['userName'],
+      userId: data['userId'], // Tambahkan ini
       createdAt: data['created_at'] as Timestamp?,
       updatedAt: data['updated_at'] as Timestamp?,
     );
@@ -75,6 +78,7 @@ class Product {
       'created_at': createdAt,
       'updated_at': updatedAt,
       'userName': userName,
+      'userId': userId, // Tambahkan ini
     };
   }
 }
