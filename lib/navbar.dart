@@ -1,11 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_nav_bar/google_nav_bar.dart';
-import 'package:tradetrove/screens/message_screen.dart';
+import 'package:tradetrove/screens/favorit.dart';
 import 'package:tradetrove/screens/home_screen.dart';
 import 'package:tradetrove/screens/profil_screen.dart';
 import 'package:tradetrove/screens/Sell_screen.dart';
-
+import 'package:tradetrove/services/registration_service.dart';
 
 class Navbar extends StatefulWidget {
   @override
@@ -16,7 +15,7 @@ class NavbarState extends State<Navbar> {
   int _selectedIndex = 0;
   static List<Widget> _widgetOptions = <Widget>[
     HomeScreen(),
-    messageScreen(),
+    FavoriteScreen(userId: AuthService.currentUserId ?? ''),
     UploadProductScreen(),
     ProfileScreen(),
   ];
@@ -30,7 +29,10 @@ class NavbarState extends State<Navbar> {
         decoration: BoxDecoration(
           color: Color.fromRGBO(191, 149, 255, 1),
           boxShadow: [
-            BoxShadow(color: Color.fromARGB(255, 156, 156, 156), blurRadius: 10, spreadRadius: 1)
+            BoxShadow(
+                color: Color.fromARGB(255, 156, 156, 156),
+                blurRadius: 10,
+                spreadRadius: 1)
           ],
         ),
         child: Padding(
@@ -53,8 +55,8 @@ class NavbarState extends State<Navbar> {
                 text: 'Home',
               ),
               GButton(
-                icon: Icons.message_outlined,
-                text: 'Message',
+                icon: Icons.favorite_border_outlined,
+                text: 'Favorite',
               ),
               GButton(
                 icon: Icons.sell_outlined,

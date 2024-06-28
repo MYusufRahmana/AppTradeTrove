@@ -28,7 +28,7 @@ dependencies:
   latlong2: ^0.9.1
   flutter_config: ^2.0.2
   rxdart: ^0.27.1
-
+  shared_preferences: ^2.0.0
 flutter_launch_icons:
   android: "launcher_icon"
   ios: true
