@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tradetrove/authentication/login_screen.dart';
 import 'package:tradetrove/authentication/update_profile.dart';
 import 'package:tradetrove/services/registration_service.dart';
+import 'package:tradetrove/services/theme.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -30,6 +32,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeService = Provider.of<ThemeService>(context);
+    final isDarkMode = themeService.isDarkMode;
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color.fromRGBO(191, 149, 255, 1),
@@ -62,56 +67,70 @@ class _ProfileScreenState extends State<ProfileScreen> {
             if (snapshot.hasData && snapshot.data != null) {
               final currentUserData =
                   snapshot.data!.data() as Map<String, dynamic>;
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundImage: currentUserData['imageUrl'] != null
-                        ? NetworkImage(currentUserData['imageUrl'])
-                        : const AssetImage('assets/images/default_avatar.png')
-                            as ImageProvider,
-                  ),
-                  const SizedBox(height: 20),
-                  _buildProfileField(
-                    label: 'Full Name',
-                    value: currentUserData['fullName'] ?? '',
-                    icon: Icons.person,
-                  ),
-                  const SizedBox(height: 20),
-                  _buildProfileField(
-                    label: 'Phone Number',
-                    value: currentUserData['phoneNumber'] ?? '',
-                    icon: Icons.phone,
-                  ),
-                  const SizedBox(height: 20),
-                  _buildProfileField(
-                    label: 'Address',
-                    value: currentUserData['address'] ?? '',
-                    icon: Icons.location_on,
-                  ),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => UpdateProfileScreen()),
-                      );
-                    },
-                    child: const Text(
-                      'Edit',
-                      style: TextStyle(color: Colors.white),
+              return SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundImage: currentUserData['imageUrl'] != null
+                          ? NetworkImage(currentUserData['imageUrl'])
+                          : const AssetImage('assets/images/default_avatar.png')
+                              as ImageProvider,
                     ),
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 40),
-                      backgroundColor: const Color.fromRGBO(191, 149, 255, 1),
+                    const SizedBox(height: 20),
+                    _buildProfileField(
+                      label: 'Full Name',
+                      value: currentUserData['fullName'] ?? '',
+                      icon: Icons.person,
+                      isDarkMode: isDarkMode,
                     ),
-                  ),
-                  const SizedBox(height: 5),
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 50),
-                    child: ElevatedButton(
+                    const SizedBox(height: 20),
+                    _buildProfileField(
+                      label: 'Phone Number',
+                      value: currentUserData['phoneNumber'] ?? '',
+                      icon: Icons.phone,
+                      isDarkMode: isDarkMode,
+                    ),
+                    const SizedBox(height: 20),
+                    _buildProfileField(
+                      label: 'Address',
+                      value: currentUserData['address'] ?? '',
+                      icon: Icons.location_on,
+                      isDarkMode: isDarkMode,
+                    ),
+                    const SizedBox(height: 20),
+                    Consumer<ThemeService>(
+                      builder: (context, themeService, child) {
+                        return SwitchListTile(
+                          title: const Text('Mode Gelap'),
+                          value: themeService.isDarkMode,
+                          onChanged: (value) {
+                            themeService.toggleTheme();
+                          },
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const UpdateProfileScreen()),
+                        );
+                      },
+                      child: const Text(
+                        'Edit',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 40),
+                        backgroundColor: const Color.fromRGBO(191, 149, 255, 1),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
                       onPressed: () async {
                         await signOutService.signOut();
                         Navigator.of(context).pushReplacement(
@@ -129,8 +148,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         backgroundColor: const Color.fromRGBO(191, 149, 255, 1),
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 20),
+                  ],
+                ),
               );
             }
             return const Center(
@@ -143,19 +163,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildProfileField(
-      {required String label, required String value, required IconData icon}) {
+      {required String label,
+      required String value,
+      required IconData icon,
+      required bool isDarkMode}) {
     return TextFormField(
       initialValue: value,
       readOnly: true,
       decoration: InputDecoration(
         labelText: label,
-        prefixIcon: Icon(icon),
+        labelStyle: TextStyle(
+          color: isDarkMode ? Colors.white : Colors.black,
+        ),
+        prefixIcon: Icon(icon, color: isDarkMode ? Colors.white : Colors.black),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
         ),
         filled: true,
-        fillColor: Colors.grey[200],
+        fillColor: isDarkMode ? Colors.grey[850] : Colors.grey[200],
       ),
+      style: TextStyle(color: isDarkMode ? Colors.white : Colors.black),
     );
   }
 }

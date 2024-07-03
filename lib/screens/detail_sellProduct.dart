@@ -11,8 +11,7 @@ import 'package:tradetrove/services/registration_service.dart';
 class ProductDetailScreen extends StatefulWidget {
   final Product product;
 
-  const ProductDetailScreen({Key? key, required this.product})
-      : super(key: key);
+  const ProductDetailScreen({Key? key, required this.product}) : super(key: key);
 
   @override
   _ProductDetailScreenState createState() => _ProductDetailScreenState();
@@ -28,7 +27,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   void initState() {
     super.initState();
     _loadCurrentUser();
-    _checkIfFavoritedFromPrefs(); // Menggunakan SharedPreferences
+    _checkIfFavoritedFromPrefs();
   }
 
   Future<void> _loadCurrentUser() async {
@@ -48,7 +47,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         _isFavorited = isFavorited!;
       });
     } else {
-      // Jika tidak ada status favorit yang tersimpan, periksa status dari Firebase
       _checkIfFavorited();
     }
   }
@@ -69,16 +67,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
 
     try {
-      // Langsung ubah status _isFavorited
       setState(() {
         _isFavorited = !_isFavorited;
       });
 
-      // Simpan status favorit ke SharedPreferences
       SharedPreferences prefs = await SharedPreferences.getInstance();
       await prefs.setBool('favorite_${widget.product.id}', _isFavorited);
 
-      // Lakukan operasi CRUD sesuai dengan status _isFavorited yang baru
       if (_isFavorited) {
         await ProductService.addFavorite(
             Favorite(productId: widget.product.id!, userId: _currentUserId!));
@@ -87,9 +82,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             widget.product.id!, _currentUserId!);
       }
     } catch (error) {
-      // Handle any errors that occur during setState or SharedPreferences operations
       print('Error toggling favorite: $error');
-      // Rollback status _isFavorited if necessary
       setState(() {
         _isFavorited = !_isFavorited;
       });
@@ -115,6 +108,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final textColor = theme.brightness == Brightness.dark
+        ? Colors.white
+        : Colors.black;
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Product Detail'),
@@ -142,9 +140,10 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ListTile(
               title: Text(
                 widget.product.merk,
-                style: const TextStyle(
+                style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
+                  color: textColor,
                 ),
               ),
               subtitle: Column(
@@ -152,16 +151,16 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 children: [
                   Text(
                     'Rp${widget.product.harga}',
-                    style: const TextStyle(
-                      color: Colors.black,
+                    style: TextStyle(
+                      color: textColor,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
                   ),
                   Text(
                     'Tahun: ${widget.product.tahun}',
-                    style: const TextStyle(
-                      color: Colors.black54,
+                    style: TextStyle(
+                      color: textColor.withOpacity(0.7),
                       fontSize: 14,
                     ),
                   ),
@@ -175,8 +174,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       SizedBox(width: 4),
                       Text(
                         '${widget.product.bahanBakar}',
-                        style: const TextStyle(
-                          color: Colors.black87,
+                        style: TextStyle(
+                          color: textColor,
                           fontSize: 16,
                         ),
                       ),
@@ -189,8 +188,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       SizedBox(width: 4),
                       Text(
                         '${widget.product.jarakTempuh}',
-                        style: const TextStyle(
-                          color: Colors.black87,
+                        style: TextStyle(
+                          color: textColor,
                           fontSize: 16,
                         ),
                       ),
@@ -211,8 +210,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           Icons.favorite,
                           color: _isFavorited
                               ? Colors.red
-                              : Colors
-                                  .grey, // Warna ikon berdasarkan _isFavorited
+                              : theme.iconTheme.color,
                         ),
                         onPressed: _toggleFavorite,
                       ),
@@ -232,7 +230,11 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             SizedBox(height: 20),
             Text(
               'Comments',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: textColor,
+              ),
             ),
             StreamBuilder<List<Comment>>(
               stream: ProductService.getProductComments(widget.product),
@@ -241,7 +243,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   return Center(child: CircularProgressIndicator());
                 }
                 if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                  return Text('No comments yet.');
+                  return Text('No comments yet.',
+                      style: TextStyle(color: textColor));
                 }
                 List<Comment> comments = snapshot.data!;
                 return ListView.builder(
@@ -251,8 +254,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                   itemBuilder: (context, index) {
                     Comment comment = comments[index];
                     return ListTile(
-                      title: Text(comment.userName),
-                      subtitle: Text(comment.text),
+                      title: Text(comment.userName, style: TextStyle(color: textColor)),
+                      subtitle: Text(comment.text, style: TextStyle(color: textColor)),
                       trailing: comment.userId == _currentUserId
                           ? IconButton(
                               icon: Icon(Icons.delete),
@@ -270,11 +273,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               controller: _commentController,
               decoration: InputDecoration(
                 labelText: 'Add a comment',
+                labelStyle: TextStyle(color: textColor),
                 suffixIcon: IconButton(
-                  icon: Icon(Icons.send),
+                  icon: Icon(Icons.send, color: textColor),
                   onPressed: _addComment,
                 ),
               ),
+              style: TextStyle(color: textColor),
             ),
           ],
         ),

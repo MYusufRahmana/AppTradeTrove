@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tradetrove/models/product.dart';
 import 'package:tradetrove/screens/detail_sellProduct.dart';
 import 'package:tradetrove/services/product.dart';
 import 'package:tradetrove/services/registration_service.dart';
-import 'package:url_launcher/url_launcher.dart'; // Import file detail screen
+import 'package:tradetrove/services/theme.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -33,6 +35,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('TradeTrove'),
@@ -49,13 +53,18 @@ class _HomeScreenState extends State<HomeScreen> {
               },
               decoration: InputDecoration(
                 hintText: 'Search...',
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(15.0),
                   borderSide: BorderSide.none,
                 ),
                 filled: true,
-                fillColor: Color.fromRGBO(222, 205, 249, 1),
+                fillColor: isDarkMode
+                    ? Colors.grey[800]
+                    : const Color.fromRGBO(222, 205, 249, 1),
+              ),
+              style: TextStyle(
+                color: isDarkMode ? Colors.white : Colors.black,
               ),
             ),
           ),
@@ -74,6 +83,8 @@ class ProductList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+
     return StreamBuilder<List<Product>>(
       stream: ProductService.getProductList(),
       builder: (context, snapshot) {
@@ -101,6 +112,7 @@ class ProductList extends StatelessWidget {
               children: filteredProducts.map<Widget>((document) {
                 return Card(
                   margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  color: isDarkMode ? Colors.grey[800] : Colors.white,
                   child: InkWell(
                     onTap: () {
                       _navigateToProductDetail(context, document);
@@ -124,9 +136,10 @@ class ProductList extends StatelessWidget {
                         ListTile(
                           title: Text(
                             document.merk,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
+                              color: isDarkMode ? Colors.white : Colors.black,
                             ),
                           ),
                           subtitle: Column(
@@ -134,24 +147,24 @@ class ProductList extends StatelessWidget {
                             children: [
                               Text(
                                 'Rp.${document.harga}',
-                                style: const TextStyle(
-                                  color: Colors.black,
+                                style: TextStyle(
+                                  color: isDarkMode ? Colors.white : Colors.black,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 16,
                                 ),
                               ),
                               Text(
                                 document.tahun,
-                                style: const TextStyle(
-                                  color: Colors.black54,
+                                style: TextStyle(
+                                  color: isDarkMode ? Colors.white70 : Colors.black54,
                                   fontSize: 10,
                                 ),
                               ),
                               const SizedBox(height: 5),
                               Text(
                                 '${document.userName}',
-                                style: const TextStyle(
-                                  color: Colors.black54,
+                                style: TextStyle(
+                                  color: isDarkMode ? Colors.white70 : Colors.black54,
                                   fontSize: 12,
                                 ),
                               ),
